@@ -1,7 +1,7 @@
 /* Reset and Base Styles */
 body {
   font-family: "Montserrat", sans-serif;
-  background-color: #f4f4f9;
+  background-color: #f5faff;
   color: #0b52c0;
 }
 
@@ -12,6 +12,20 @@ body {
   align-items: center;
   min-height: 100vh;
   padding: 10px;
+}
+
+/* navbar breathing-effect */
+@keyframes breathing {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(11, 82, 192, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(11, 82, 192, 1);
+  }
+}
+
+.breathing-effect {
+  animation: breathing 3s ease-in-out infinite;
 }
 
 /* Tab Switch Styles */
@@ -448,6 +462,8 @@ section {
   top: 0;
   left: 0;
   height: 100vh;
+  z-index: 1000;
+  /* padding-top: 10px; thoda space top pe */
 }
 
 .sidebar-buttons.hide {
@@ -492,7 +508,8 @@ section {
   flex: 1;
   overflow-y: auto;
   background-color: #f5f9fd;
-  padding: 1rem 2rem;
+  padding: 5rem 5rem;
+  margin-left: 100px;
 }
 
 /* Mobile & Tablet */

@@ -83,11 +83,11 @@ const JobApplied = () => {
           status: "hiring"  // Make sure hiring jobs have status
         }));
         break;
-      case "previous":
-        jobsToShow = jobsData.filter(job => job.status === "previous");
-        break;
-      default:
-        jobsToShow = [];
+      // case "previous":
+      //   jobsToShow = jobsData.filter(job => job.status === "previous");
+      //   break;
+      // default:
+      //   jobsToShow = [];
     }
     setVisibleJobs(jobsToShow);
   }, [activeTab, appliedJobs]);
@@ -99,7 +99,7 @@ const JobApplied = () => {
   const tabs = [
     { id: "applied", label: "Applied" },
     { id: "hiring", label: "Hiring Done" },
-    { id: "previous", label: "Previous Jobs" },
+    // { id: "previous", label: "Previous Jobs" },
   ];
 
   return (

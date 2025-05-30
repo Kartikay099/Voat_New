@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Home, RefreshCw, Briefcase, HelpCircle, Phone } from "lucide-react";
 
 const sections = [
   { id: "home", label: "Home" },
@@ -11,12 +10,10 @@ const sections = [
 
 const StickySidebarButtons = () => {
   const [activeSection, setActiveSection] = useState("");
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight / 2;
-
       let current = "";
       sections.forEach((section) => {
         const el = document.getElementById(section.id);
@@ -32,50 +29,38 @@ const StickySidebarButtons = () => {
         }
       });
       setActiveSection(current);
-
-      const footer = document.getElementById("footer");
-      if (footer) {
-        const footerRect = footer.getBoundingClientRect();
-        setIsFooterVisible(footerRect.top < window.innerHeight);
-      }
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Run once on mount
+    handleScroll(); // initial check
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div
-      className={`sidebar-buttons fixed top-1/4 left-4 flex flex-col gap-4 z-50 transition-opacity duration-300 ${
-        isFooterVisible ? "opacity-0 pointer-events-none" : "opacity-100"
-      }`}
-    >
-      {sections.map((section) => (
-        <button
-          key={section.id}
-          onClick={() => scrollToSection(section.id)}
-          className={`flex items-center justify-center py-2 w-32 rounded-full transition-all duration-200 ${
-            activeSection === section.id
-              ? "bg-[#0B52C0] text-white"
-              : "hover:bg-[#f0f7ff] text-black border-2 border-[#0B52C0]"
-          }`}
-        >
-          <span className="md:inline-block lg:hidden">{section.icon}</span>
-          <span className="hidden lg:inline-block capitalize ml-2 text-center w-full">
+<aside className="fixed top-16 left-0 w-44 h-[calc(100vh-15rem)] bg-[#f5faff] border-r border-none z-40 flex flex-col justify-center items-center">
+
+      <div className="flex flex-col gap-4">
+        {sections.map((section) => (
+          <button
+            key={section.id}
+            onClick={() => scrollToSection(section.id)}
+            className={`w-36 py-2 rounded-full text-sm font-medium shadow transition-all duration-200 ${
+              activeSection === section.id
+                ? "bg-[#0B52C0] text-white"
+                : "bg-white text-[#0B52C0] border border-[#0B52C0] hover:bg-[#e0efff]"
+            }`}
+          >
             {section.label}
-          </span>
-        </button>
-      ))}
-    </div>
+          </button>
+        ))}
+      </div>
+    </aside>
   );
 };
 

@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Register from "./Landing/components/Register";
 import Login from "./Landing/components/Login";
 import MainPages from "./Landing/components/MainPages";
@@ -11,13 +11,11 @@ import JobApplied from "./studentsComponents/components/JobApplied";
 import SupportChat from "./studentsComponents/components/Supportchat";
 import Layout from "./Hrdashboard/Layout";
 import HRSchedulePage from "./Hrdashboard/pages/hrSchedule";
-
-//import OTPLogin from "./Landing/components/OTPLogin"; // ✅ Add path as per your folder
-import ForgotPassword from "./Landing/components/ForgotPassword"; // ✅ Add path as per your folder
+import ForgotPassword from "./Landing/components/ForgotPassword";
+import Navbar from "./Landing/components/Navbar";
 
 import "./App.css";
 
-// Layout for student-related routes that need SupportChat
 function StudentLayout({ children }) {
   return (
     <>
@@ -28,62 +26,74 @@ function StudentLayout({ children }) {
 }
 
 function App() {
+  const location = useLocation();
+
+  // Check if the current path is "/"
+  const isMainPage = location.pathname === "/";
+
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<MainPages />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-  {/* <Route path="/otp-login" element={<OTPLogin />} /> ✅ OTP login route */}
-      <Route path="/forgot-password" element={<ForgotPassword />} /> {/* ✅ Forgot password */}
+    <>
+      {/* <Navbar /> */}
 
-      {/* HR Dashboard Routes */}
-      <Route path="/hire" element={<Layout />}>
-        <Route path="hrprofile" element={<HRSchedulePage />} />
-      </Route>
+      {/* ✅ Padding only for main page */}
+      {isMainPage && <div className="pt-1" />}
 
-      {/* Student Routes with SupportChat */}
-      <Route
-        path="/profile"
-        element={
-          <StudentLayout>
-            <StudentProfile />
-          </StudentLayout>
-        }
-      />
-      <Route
-        path="/schedule"
-        element={
-          <StudentLayout>
-            <SchedulePage />
-          </StudentLayout>
-        }
-      />
-      <Route
-        path="/apply-for-jobs"
-        element={
-          <StudentLayout>
-            <ApplyForJobs />
-          </StudentLayout>
-        }
-      />
-      <Route
-        path="/apply-for-jobs/job-details/:id"
-        element={
-          <StudentLayout>
-            <JobDetails />
-          </StudentLayout>
-        }
-      />
-      <Route
-        path="/applied-jobs"
-        element={
-          <StudentLayout>
-            <JobApplied />
-          </StudentLayout>
-        }
-      />
-    </Routes>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<MainPages />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* <Route path="/otp-login" element={<OTPLogin />} /> */}
+
+        {/* HR Dashboard Routes */}
+        <Route path="/hire" element={<Layout />}>
+          <Route path="hrprofile" element={<HRSchedulePage />} />
+        </Route>
+
+        {/* Student Routes */}
+        <Route
+          path="/profile"
+          element={
+            <StudentLayout>
+              <StudentProfile />
+            </StudentLayout>
+          }
+        />
+        <Route
+          path="/schedule"
+          element={
+            <StudentLayout>
+              <SchedulePage />
+            </StudentLayout>
+          }
+        />
+        <Route
+          path="/apply-for-jobs"
+          element={
+            <StudentLayout>
+              <ApplyForJobs />
+            </StudentLayout>
+          }
+        />
+        <Route
+          path="/apply-for-jobs/job-details/:id"
+          element={
+            <StudentLayout>
+              <JobDetails />
+            </StudentLayout>
+          }
+        />
+        <Route
+          path="/applied-jobs"
+          element={
+            <StudentLayout>
+              <JobApplied />
+            </StudentLayout>
+          }
+        />
+      </Routes>
+    </>
   );
 }
 

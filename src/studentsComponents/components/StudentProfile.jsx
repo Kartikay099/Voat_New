@@ -359,7 +359,6 @@ export default function StudentProfile() {
                     <Upload size={20} />
                     <span>Upload Resume</span>
                     <input
-                      type
                       type="file"
                       className="hidden"
                       accept=".pdf, .doc, .docx"

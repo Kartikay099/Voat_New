@@ -26,7 +26,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen py-12 px-4 bg-[#f9fafc] flex flex-col items-center animate-fadeIn">
+    <div className="min-h-screen py-12 px-4  flex flex-col items-center animate-fadeIn">
       <h1 className="text-4xl font-bold mb-6 text-center">
         Contact <span className="text-blue-600">Us</span>
       </h1>

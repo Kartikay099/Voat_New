@@ -46,9 +46,9 @@ const JobDetails = ({}) => {
                   <h1 className="text-2xl md:text-3xl font-bold">
                     {selectedJob.title}
                   </h1>
-                  <span className="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full self-start md:self-auto w-28 text-center">
+                  {/* <span className="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full self-start md:self-auto w-28 text-center">
                     • Applied
-                  </span>
+                  </span> */}
                 </div>
               </div>
               <button
