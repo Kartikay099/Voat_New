@@ -272,7 +272,7 @@ export default function OTPLogin() {
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-blue-600 hover:underline text-sm font-medium"
+                    className="text-blue-600 hover:underline text-sm font-semibold"
                   >
                     Forgot Password?
                   </button>
@@ -369,10 +369,12 @@ export default function OTPLogin() {
           </form>
 
           <div className="text-center mt-4">
-            <span className="text-sm text-gray-600">Not registered?</span>{" "}
-            <a href="/register" className="text-blue-600 hover:underline text-sm font-medium">
-              Register now
-            </a>
+            <span
+      onClick={() => navigate('/register')}
+      className="text-blue-600 hover:underline text-m text-semibold font-medium cursor-pointer"
+    >
+      Go to Register now
+    </span>
           </div>
         </motion.div>
       </motion.div>

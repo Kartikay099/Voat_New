@@ -244,7 +244,7 @@ export default function Register() {
                 </h2>
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <label className="block mb-1 text-sm font-semibold text-gray-700">
                     Name
                   </label>
                   <input
@@ -256,13 +256,13 @@ export default function Register() {
                     }}
                     maxLength={50}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 transition-colors duration-300"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400 transition-colors duration-300"
                     placeholder="Enter your name"
                   />
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <label className="block mb-1 text-sm font-semibold text-gray-700">
                     Email
                   </label>
                   <input
@@ -271,13 +271,13 @@ export default function Register() {
                     onChange={(e) => setEmail(e.target.value)}
                     maxLength={100}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 transition-colors duration-300"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400 transition-colors duration-300"
                     placeholder="Enter your email"
                   />
                 </div>
 
                 <div className="relative">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <label className="block mb-1 text-sm font-semibold text-gray-700">
                     Password
                   </label>
                   <input
@@ -287,7 +287,7 @@ export default function Register() {
                     minLength={8}
                     maxLength={30}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-gray-900 bg-white placeholder-gray-400 transition-colors duration-300"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-gray-900 bg-white placeholder-blue-400 transition-colors duration-300"
                     placeholder="At least 8 chars, uppercase, lowercase, digit, special"
                   />
                   <span
@@ -300,7 +300,7 @@ export default function Register() {
 
                 {activeTab === "left" && (
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
+                    <label className="block mb-1 text-sm font-semibold text-gray-700">
                       Upload Resume (PDF)
                     </label>
                     <input

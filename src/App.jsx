@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Link } from "react-router-dom";
 import Register from "./Landing/components/Register";
 import Login from "./Landing/components/Login";
 import MainPages from "./Landing/components/MainPages";
@@ -34,9 +34,6 @@ function App() {
 
   return (
     <>
-      {/* Optional Navbar */}
-      {/* <Navbar /> */}
-
       {/* ✅ Padding only for main page */}
       {isMainPage && <div className="pt-1" />}
 
@@ -46,6 +43,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/register" element={<Register />} />
+
 
         {/* HR Dashboard Routes */}
         <Route path="/hire" element={<Layout />}>
