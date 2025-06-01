@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const faqs = [
   {
@@ -51,43 +53,57 @@ export default function FAQsPage() {
   };
 
   return (
-    <div className="faq-container">
-      <h1 className="text-3xl font-bold text-center faq-title">
+    <div className="p-8 max-w-screen-2xl mx-auto"> {/* Badha di max-width */}
+      <h1 className="text-5xl font-extrabold text-center text-blue-700 mb-12">
         Frequently Asked Questions
       </h1>
-      <div className="mx-auto space-y-4">
+      <div className="space-y-6">
         {faqs.map((faq, i) => (
           <div
             key={i}
-            className="bg-white rounded-lg shadow-md faqs-items"
-            style={{
-              backgroundColor: activeIndex === i ? "#0B52C0" : "",
-            }}
+            className={`rounded-3xl shadow-lg border transition-all duration-300 ${
+              activeIndex === i
+                ? "bg-blue-600 text-white border-blue-700"
+                : "bg-white text-blue-900 hover:bg-blue-50 border-gray-200"
+            }`}
           >
             <button
               onClick={() => toggle(i)}
-              className="w-full text-left font-semibold text-gray-800 flex justify-between items-center"
-              style={{
-                color: activeIndex === i ? "#ffffff" : "",
-              }}
+              className="w-full flex justify-between items-center text-lg font-semibold p-6 focus:outline-none"
             >
-              {faq.q}
-              <span className="text-lg">{activeIndex === i ? "−" : "+"}</span>
-            </button>
-            <div
-              className={`faq-answer transition-all duration-300 ease-in-out ${
-                activeIndex === i ? "open" : ""
-              }`}
-            >
-              <p
-                className="text-gray-600 text-sm mt-3"
-                style={{
-                  color: activeIndex === i ? "#e6e6e6" : "",
-                }}
+              <span>{faq.q}</span>
+              <motion.div
+                animate={{ rotate: activeIndex === i ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
               >
-                {faq.a}
-              </p>
-            </div>
+                {activeIndex === i ? (
+                  <ChevronUp className="w-6 h-6" />
+                ) : (
+                  <ChevronDown className="w-6 h-6" />
+                )}
+              </motion.div>
+            </button>
+            <AnimatePresence initial={false}>
+              {activeIndex === i && (
+                <motion.div
+                  key="content"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="overflow-hidden px-6 pb-6"
+                >
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="text-base leading-relaxed"
+                  >
+                    {faq.a}
+                  </motion.p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>

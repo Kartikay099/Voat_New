@@ -27,7 +27,7 @@ export default function JobBoard() {
         {dummyJobs.map((job) => (
           <div
             key={job.id}
-            className="group relative bg-white border border-gray-200 rounded-2xl shadow-md p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out hover:shadow-2xl hover:scale-[1.025] overflow-hidden hover:ring-1 hover:ring-blue-500"
+            className="group relative bg-white border border-gray-200 rounded-2xl shadow-lg p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out hover:shadow-2xl hover:scale-[1.03] overflow-hidden hover:ring-1 hover:ring-blue-500"
           >
             <span className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-400 via-blue-600 to-blue-800 scale-y-0 group-hover:scale-y-100 origin-top transition-transform duration-300 rounded-full"></span>
 
@@ -40,9 +40,9 @@ export default function JobBoard() {
               </div>
 
               <h2 className="text-xl font-bold text-blue-800 mb-1 flex items-center gap-2">
-                <Briefcase size={18} className="text-blue-600" /> {job.role}
+                <Briefcase size={20} className="text-blue-600" /> {job.role}
               </h2>
-              <p className="text-blue-600 mb-2 font-medium">{job.company}</p>
+              <p className="text-blue-600 mb-2 font-medium text-base">{job.company}</p>
 
               <div className="text-sm text-gray-700 space-y-1 mt-2">
                 <p className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export default function JobBoard() {
               <p className="text-blue-600 font-semibold text-sm flex items-center gap-1">
                 <span>${job.salary}/mo</span>
               </p>
-              <button className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-sm px-5 py-2 rounded-full hover:from-blue-700 hover:to-blue-900 transition-all duration-300 ease-in-out flex items-center gap-2">
+              <button className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-sm px-4 py-2 rounded-full hover:from-blue-700 hover:to-blue-900 transition-all duration-300 ease-in-out flex items-center gap-2">
                 Apply Now <ArrowRight size={14} />
               </button>
             </div>

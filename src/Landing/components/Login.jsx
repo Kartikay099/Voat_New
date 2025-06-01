@@ -8,16 +8,20 @@ export default function OTPLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState(Array(6).fill(""));
-  const [attemptsLeft, setAttemptsLeft] = useState(3);
+  const [attemptsLeftLogin, setAttemptsLeftLogin] = useState(3);
+  const [attemptsLeftOTP, setAttemptsLeftOTP] = useState(3);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [toast, setToast] = useState(null); // { type: 'success'|'error', message: '' }
+  const [toast, setToast] = useState(null);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [freezeTimerLogin, setFreezeTimerLogin] = useState(0);
+  const [freezeTimerOTP, setFreezeTimerOTP] = useState(0);
+
   const inputRefs = useRef([]);
   const navigate = useNavigate();
 
-  // Toast auto-clear after 3 seconds
+  // Toast auto-clear
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 3000);
@@ -25,27 +29,48 @@ export default function OTPLogin() {
     }
   }, [toast]);
 
-  // Countdown for resend cooldown timer
+  // Resend OTP cooldown
   useEffect(() => {
     if (resendCooldown > 0) {
-      const interval = setInterval(() => {
-        setResendCooldown((time) => time - 1);
-      }, 1000);
+      const interval = setInterval(() => setResendCooldown((t) => t - 1), 1000);
       return () => clearInterval(interval);
     }
   }, [resendCooldown]);
 
-  const showToast = (type, message) => {
-    setToast({ type, message });
-  };
+  // Freeze timer countdown for login
+  useEffect(() => {
+    if (freezeTimerLogin > 0) {
+      const interval = setInterval(() => {
+        setFreezeTimerLogin((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (freezeTimerLogin === 0 && attemptsLeftLogin === 0) {
+      setAttemptsLeftLogin(3);
+    }
+  }, [freezeTimerLogin]);
+
+  // Freeze timer countdown for OTP
+  useEffect(() => {
+    if (freezeTimerOTP > 0) {
+      const interval = setInterval(() => {
+        setFreezeTimerOTP((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (freezeTimerOTP === 0 && attemptsLeftOTP === 0) {
+      setAttemptsLeftOTP(3);
+    }
+  }, [freezeTimerOTP]);
+
+  const showToast = (type, message) => setToast({ type, message });
 
   const handleSendOTP = (e) => {
     e.preventDefault();
     if (email) {
       setStep(2);
       setErrorMsg("");
+      setAttemptsLeftOTP(3); // Reset OTP attempts on new send
       showToast("success", "OTP sent to your email.");
-      setResendCooldown(30); // 30 seconds cooldown for resend
+      setResendCooldown(30);
     } else {
       setErrorMsg("Please enter your email to continue.");
     }
@@ -53,15 +78,42 @@ export default function OTPLogin() {
 
   const handleVerifyOTP = (e) => {
     e.preventDefault();
+    if (freezeTimerOTP > 0) {
+      setErrorMsg(`Please wait ${freezeTimerOTP}s before trying OTP again.`);
+      return;
+    }
     if (otp.join("").length < 6) {
       setErrorMsg("Please enter the complete 6-digit OTP.");
       return;
     }
-    alert(`OTP Verified: ${otp.join("")}`);
+
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      // Simulate OTP check; let's say OTP = "123456" is correct
+      if (otp.join("") === "123456") {
+        alert(`OTP Verified: ${otp.join("")}`);
+        setAttemptsLeftOTP(3);
+        setErrorMsg("");
+      } else {
+        const remaining = attemptsLeftOTP - 1;
+        setAttemptsLeftOTP(remaining);
+        if (remaining <= 0) {
+          setErrorMsg("Too many failed OTP attempts. Try again in 60 seconds.");
+          setFreezeTimerOTP(60);
+        } else {
+          setErrorMsg(`Incorrect OTP. ${remaining} attempt(s) left.`);
+        }
+      }
+    }, 1500);
   };
 
   const handleTraditionalLogin = (e) => {
     e.preventDefault();
+    if (freezeTimerLogin > 0) {
+      setErrorMsg(`Please wait ${freezeTimerLogin}s before trying login again.`);
+      return;
+    }
     if (!email || !password) {
       setErrorMsg("Please enter both email and password.");
       return;
@@ -72,13 +124,14 @@ export default function OTPLogin() {
       setLoading(false);
       if (password === "admin123") {
         alert(`Logged in with email: ${email}`);
-        setAttemptsLeft(3);
+        setAttemptsLeftLogin(3);
         setErrorMsg("");
       } else {
-        const remaining = attemptsLeft - 1;
-        setAttemptsLeft(remaining);
+        const remaining = attemptsLeftLogin - 1;
+        setAttemptsLeftLogin(remaining);
         if (remaining <= 0) {
-          setErrorMsg("Too many failed attempts. Please try again later.");
+          setErrorMsg("Too many failed attempts. Try again in 60 seconds.");
+          setFreezeTimerLogin(60);
         } else {
           setErrorMsg(`Incorrect password. ${remaining} attempt(s) left.`);
         }
@@ -87,7 +140,7 @@ export default function OTPLogin() {
   };
 
   const handleOtpChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return; // Allow only digits or empty
+    if (!/^\d?$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -112,11 +165,10 @@ export default function OTPLogin() {
     setOtp(Array(6).fill(""));
     inputRefs.current[0]?.focus();
     setResendCooldown(30);
+    setAttemptsLeftOTP(3); // Reset OTP attempts on resend
   };
 
-  const handleForgotPassword = () => {
-    navigate("/forgot-password");
-  };
+  const handleForgotPassword = () => navigate("/forgot-password");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-[#bfdbfe] via-[#a5b4fc] to-[#93c5fd] p-6">
@@ -126,7 +178,6 @@ export default function OTPLogin() {
         transition={{ duration: 0.6 }}
         className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl w-full"
       >
-        {/* Left Side Image */}
         <motion.div
           className="md:w-1/2 flex items-center justify-center bg-white"
           initial={{ opacity: 0, x: -50 }}
@@ -140,7 +191,6 @@ export default function OTPLogin() {
           />
         </motion.div>
 
-        {/* Right Side Form */}
         <motion.div
           className="md:w-1/2 p-8 flex flex-col justify-center"
           initial={{ opacity: 0, x: 50 }}
@@ -155,7 +205,6 @@ export default function OTPLogin() {
             </div>
           )}
 
-          {/* Toast Message */}
           <AnimatePresence>
             {toast && (
               <motion.div
@@ -172,7 +221,6 @@ export default function OTPLogin() {
           </AnimatePresence>
 
           <form onSubmit={step === 1 ? handleSendOTP : handleVerifyOTP}>
-            {/* Email */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <div className="relative">
@@ -187,6 +235,8 @@ export default function OTPLogin() {
                       setStep(1);
                       setOtp(Array(6).fill(""));
                       setErrorMsg("");
+                      setAttemptsLeftOTP(3);
+                      setFreezeTimerOTP(0);
                     }
                   }}
                   required
@@ -195,44 +245,41 @@ export default function OTPLogin() {
               </div>
             </div>
 
-            {/* Password */}
-            <div className="mb-2 relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (step === 2) {
-                    setStep(1);
-                    setOtp(Array(6).fill(""));
-                    setErrorMsg("");
-                  }
-                }}
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-9 transform -translate-y-1/2 text-gray-500"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+            {step === 1 && (
+              <>
+                <div className="mb-2 relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setErrorMsg("");
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-9 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
 
-            {/* Forgot Password */}
-            <div className="mb-6 text-right">
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-blue-600 hover:underline text-sm font-medium"
-              >
-                Forgot Password?
-              </button>
-            </div>
+                <div className="mb-6 text-right">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-blue-600 hover:underline text-sm font-medium"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              </>
+            )}
 
-            {/* OTP Section */}
             <AnimatePresence>
               {step === 2 && (
                 <motion.div
@@ -256,6 +303,7 @@ export default function OTPLogin() {
                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
                         className="w-12 h-12 text-center border border-gray-400 rounded-md text-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                         whileFocus={{ scale: 1.1 }}
+                        disabled={freezeTimerOTP > 0}
                       />
                     ))}
                   </div>
@@ -263,12 +311,14 @@ export default function OTPLogin() {
                     <button
                       type="button"
                       onClick={handleResend}
-                      disabled={resendCooldown > 0}
+                      disabled={resendCooldown > 0 || freezeTimerOTP > 0}
                       className={`text-blue-600 hover:underline text-sm ${
-                        resendCooldown > 0 ? "cursor-not-allowed opacity-50" : ""
+                        resendCooldown > 0 || freezeTimerOTP > 0 ? "cursor-not-allowed opacity-50" : ""
                       }`}
                     >
-                      {resendCooldown > 0
+                      {freezeTimerOTP > 0
+                        ? `Wait ${freezeTimerOTP}s to resend OTP`
+                        : resendCooldown > 0
                         ? `Resend OTP in ${resendCooldown}s`
                         : "Resend OTP"}
                     </button>
@@ -277,21 +327,20 @@ export default function OTPLogin() {
               )}
             </AnimatePresence>
 
-            {/* Buttons */}
             {step === 1 ? (
               <div className="flex flex-col gap-3">
                 <button
                   type="button"
                   onClick={handleTraditionalLogin}
-                  disabled={attemptsLeft <= 0 || loading}
+                  disabled={attemptsLeftLogin <= 0 || loading || freezeTimerLogin > 0}
                   className={`w-full flex items-center justify-center gap-2 bg-gray-800 text-white py-2 rounded-md hover:bg-gray-900 transition duration-300 ${
-                    loading ? "opacity-70 cursor-not-allowed" : ""
+                    loading || freezeTimerLogin > 0 ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
                   {loading && (
                     <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                   )}
-                  Login
+                  {freezeTimerLogin > 0 ? `Try again in ${freezeTimerLogin}s` : "Login"}
                 </button>
                 <button
                   type="submit"
@@ -303,14 +352,22 @@ export default function OTPLogin() {
             ) : (
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
+                disabled={freezeTimerOTP > 0 || loading}
+                className={`w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300 ${
+                  freezeTimerOTP > 0 || loading ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               >
-                Verify OTP
+                {loading ? (
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></span>
+                ) : freezeTimerOTP > 0 ? (
+                  `Try again in ${freezeTimerOTP}s`
+                ) : (
+                  "Verify OTP"
+                )}
               </button>
             )}
           </form>
 
-          {/* Register */}
           <div className="text-center mt-4">
             <span className="text-sm text-gray-600">Not registered?</span>{" "}
             <a href="/register" className="text-blue-600 hover:underline text-sm font-medium">

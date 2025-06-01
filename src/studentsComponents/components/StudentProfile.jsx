@@ -130,50 +130,103 @@ export default function StudentProfile() {
     </div>
   );
 
-  const renderInput = (label, name, value, type = "text", options = null) => (
-    <div className="mb-3 sm:mb-4">
-      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-        {label} *
-      </label>
-      {type === "select" ? (
-        <select
-          name={name}
-          value={value}
-          onChange={
-            name.includes("parent") ? handleParentChange : handleStudentChange
-          }
-          className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
-            errors[name] ? "border-red-500" : "border-gray-300"
-          } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
-          disabled={!isEditing}
-        >
-          <option value="">Select {label.toLowerCase()}</option>
-          {options?.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          name={name}
-          value={value}
-          onChange={
-            name.includes("parent") ? handleParentChange : handleStudentChange
-          }
-          className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
-            errors[name] ? "border-red-500" : "border-gray-300"
-          } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
-          disabled={!isEditing}
-          placeholder={`Enter ${label.toLowerCase()}`}
-        />
-      )}
-      {errors[name] && (
-        <p className="mt-1 text-xs sm:text-sm text-red-600">{errors[name]}</p>
-      )}
-    </div>
-  );
+  // const renderInput = (label, name, value, type = "text", options = null) => (
+  //   <div className="mb-3 sm:mb-4">
+  //     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+  //       {label} *
+  //     </label>
+  //     {type === "select" ? (
+  //       <select
+  //         name={name}
+  //         value={value}
+  //         onChange={
+  //           name.includes("parent") ? handleParentChange : handleStudentChange
+  //         }
+  //         className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
+  //           errors[name] ? "border-red-500" : "border-gray-300"
+  //         } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
+  //         disabled={!isEditing}
+  //       >
+  //         <option value="">Select {label.toLowerCase()}</option>
+  //         {options?.map((opt) => (
+  //           <option key={opt} value={opt}>
+  //             {opt}
+  //           </option>
+  //         ))}
+  //       </select>
+  //     ) : (
+  //       <input
+  //         type={type}
+  //         name={name}
+  //         value={value}
+  //         onChange={
+  //           name.includes("parent") ? handleParentChange : handleStudentChange
+  //         }
+  //         className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
+  //           errors[name] ? "border-red-500" : "border-gray-300"
+  //         } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
+  //         disabled={!isEditing}
+  //         placeholder={`Enter ${label.toLowerCase()}`}
+  //       />
+  //     )}
+  //     {errors[name] && (
+  //       <p className="mt-1 text-xs sm:text-sm text-red-600">{errors[name]}</p>
+  //     )}
+  //   </div>
+  // );
+  const renderInput = (label, name, value, type = "text", options = null) => {
+    const isNonEditable = ["name", "email", "phone"].includes(name);
+
+    return (
+      <div className="mb-3 sm:mb-4" key={name}>
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          
+          {label} *
+        </label>
+        {type === "select" ? (
+          <select
+            name={name}
+            value={value}
+            onChange={
+              name.startsWith("parent") ? handleParentChange : handleStudentChange
+            }
+            className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
+              errors[name] ? "border-red-500" : "border-gray-300"
+            } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
+            disabled={!isEditing || isNonEditable}
+          >
+            <option value="">Select {label.toLowerCase()}</option>
+            {options?.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+
+            ))}
+          </select>
+
+        ) : (
+          <input
+            type={type}
+            name={name}
+            value={value}
+            onChange={
+              name.startsWith("parent") ? handleParentChange : handleStudentChange
+            }
+            className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
+              errors[name] ? "border-red-500" : "border-gray-300"
+            } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
+            disabled={!isEditing || isNonEditable}
+            placeholder={`Enter ${label.toLowerCase()}`}
+          />
+          
+        )}
+        {errors[name] && (
+          <p className="mt-1 text-xs sm:text-sm text-red-600">{errors[name]}</p>
+        )}
+        
+      </div>
+    );
+  };
 
   return (
     <div className="flex">

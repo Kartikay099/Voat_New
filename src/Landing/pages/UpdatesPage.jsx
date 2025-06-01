@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CalendarDays } from "lucide-react"; // Professional icon
 
 const dummyData = Array(5)
   .fill(0)
@@ -12,7 +13,7 @@ const dummyData = Array(5)
 
 const filters = ["All", "New", "Old"];
 
-function UpdatesPage() {
+export default function UpdatesPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
@@ -21,30 +22,33 @@ function UpdatesPage() {
       filter === "All" ? true : item.type === filter.toLowerCase()
     )
     .filter((item) => item.title.toLowerCase().includes(search.toLowerCase()));
+
   return (
-    <div className="updates-page-container w-full updates-content">
-      <h1 className="text-3xl font-bold mb-6 text-center">Announcements</h1>
+    <div className="max-w-screen-2xl mx-auto p-8"> {/* Increased width */}
+      <h1 className="text-4xl font-bold text-center text-blue-700 mb-8">
+        Announcements
+      </h1>
+
       {/* Search */}
       <input
         type="text"
         placeholder="Search announcements..."
-        className="w-full p-3 mb-6 rounded-md"
+        className="w-full p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 mb-6 transition-all duration-300"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ border: "1px solid #000000" }}
       />
 
       {/* Filters */}
-      <div className="flex sorting-cont">
+      <div className="flex gap-3 mb-6 justify-center flex-wrap">
         {filters.map((f) => (
           <button
             key={f}
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
+            onClick={() => setFilter(f)}
+            className={`px-5 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${
               filter === f
                 ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                : "bg-gray-200 text-gray-700 hover:bg-blue-100"
             }`}
-            onClick={() => setFilter(f)}
           >
             {f}
           </button>
@@ -52,23 +56,25 @@ function UpdatesPage() {
       </div>
 
       {/* List */}
-      <div className="space-y-4 updates-items-cont">
+      <div className="space-y-6">
         {filtered.map(({ id, date, title, description }) => (
           <div
             key={id}
-            className="bg-white updated-items p-4 rounded-lg shadow-sm hover:shadow-md transition"
+            className="flex items-start gap-4 p-6 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 bg-white"
           >
-            <div className="text-sm text-gray-500 mb-1">{date}</div>
-            <hr className="bg-gray-500 h-11 w-0.5" />
+            <div className="flex flex-col items-center text-blue-700">
+              <CalendarDays className="w-6 h-6 mb-1" />
+              <span className="text-xs">{date}</span>
+            </div>
             <div>
-              <div className="text-lg font-semibold">{title}</div>
-              <div className="text-gray-600 text-sm">{description}</div>
+              <h3 className="text-lg font-semibold">{title}</h3>
+              <p className="text-sm text-gray-600">{description}</p>
             </div>
           </div>
         ))}
 
         {filtered.length === 0 && (
-          <div className="text-gray-500 text-center py-6">
+          <div className="text-center text-gray-500 py-8">
             No announcements found.
           </div>
         )}
@@ -76,5 +82,3 @@ function UpdatesPage() {
     </div>
   );
 }
-
-export default UpdatesPage;
