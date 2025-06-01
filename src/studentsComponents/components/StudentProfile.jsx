@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { FileText, Upload, X, Edit2, Check } from "lucide-react";
 import Header from "./header/Header";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function StudentProfile() {
+  const navigate = useNavigate();
+
   const [isEditing, setIsEditing] = useState(false);
 
   const initialStudentDetails = {
@@ -38,8 +43,6 @@ export default function StudentProfile() {
       newErrors.studentEmail = "Email is required";
     else if (!/^\S+@\S+\.\S+$/.test(studentDetails.email))
       newErrors.studentEmail = "Email is invalid";
-    if (!studentDetails.password)
-      newErrors.studentPassword = "Password is required";
     if (!studentDetails.phone.trim())
       newErrors.studentPhone = "Phone is required";
     if (!studentDetails.gender) newErrors.studentGender = "Gender is required";
@@ -130,57 +133,30 @@ export default function StudentProfile() {
     </div>
   );
 
-  // const renderInput = (label, name, value, type = "text", options = null) => (
-  //   <div className="mb-3 sm:mb-4">
-  //     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-  //       {label} *
-  //     </label>
-  //     {type === "select" ? (
-  //       <select
-  //         name={name}
-  //         value={value}
-  //         onChange={
-  //           name.includes("parent") ? handleParentChange : handleStudentChange
-  //         }
-  //         className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
-  //           errors[name] ? "border-red-500" : "border-gray-300"
-  //         } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
-  //         disabled={!isEditing}
-  //       >
-  //         <option value="">Select {label.toLowerCase()}</option>
-  //         {options?.map((opt) => (
-  //           <option key={opt} value={opt}>
-  //             {opt}
-  //           </option>
-  //         ))}
-  //       </select>
-  //     ) : (
-  //       <input
-  //         type={type}
-  //         name={name}
-  //         value={value}
-  //         onChange={
-  //           name.includes("parent") ? handleParentChange : handleStudentChange
-  //         }
-  //         className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
-  //           errors[name] ? "border-red-500" : "border-gray-300"
-  //         } focus:outline-none focus:ring-2 focus:ring-[#0F52BA] focus:border-transparent text-sm sm:text-base`}
-  //         disabled={!isEditing}
-  //         placeholder={`Enter ${label.toLowerCase()}`}
-  //       />
-  //     )}
-  //     {errors[name] && (
-  //       <p className="mt-1 text-xs sm:text-sm text-red-600">{errors[name]}</p>
-  //     )}
-  //   </div>
-  // );
   const renderInput = (label, name, value, type = "text", options = null) => {
     const isNonEditable = ["name", "email", "phone"].includes(name);
+
+   if (name === "password") {
+  return isEditing ? (
+    <div className="mb-3 sm:mb-4">
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+        {label} *
+      </label>
+      <button
+        type="button"
+        onClick={() => navigate("/changePassword")}
+        className="px-4 sm:px-5 py-2 bg-[#0F52BA] text-white rounded-lg hover:bg-[#1565C0] transition-colors text-sm sm:text-base"
+      >
+        Update Password
+      </button>
+    </div>
+  ) : null;
+}
+
 
     return (
       <div className="mb-3 sm:mb-4" key={name}>
         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-          
           {label} *
         </label>
         {type === "select" ? (
@@ -188,7 +164,9 @@ export default function StudentProfile() {
             name={name}
             value={value}
             onChange={
-              name.startsWith("parent") ? handleParentChange : handleStudentChange
+              name.startsWith("parent")
+                ? handleParentChange
+                : handleStudentChange
             }
             className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
               errors[name] ? "border-red-500" : "border-gray-300"
@@ -200,17 +178,17 @@ export default function StudentProfile() {
               <option key={opt} value={opt}>
                 {opt}
               </option>
-
             ))}
           </select>
-
         ) : (
           <input
             type={type}
             name={name}
             value={value}
             onChange={
-              name.startsWith("parent") ? handleParentChange : handleStudentChange
+              name.startsWith("parent")
+                ? handleParentChange
+                : handleStudentChange
             }
             className={`w-full px-3 sm:px-4 py-1 sm:py-2 rounded-lg border ${
               errors[name] ? "border-red-500" : "border-gray-300"
@@ -218,12 +196,12 @@ export default function StudentProfile() {
             disabled={!isEditing || isNonEditable}
             placeholder={`Enter ${label.toLowerCase()}`}
           />
-          
         )}
         {errors[name] && (
-          <p className="mt-1 text-xs sm:text-sm text-red-600">{errors[name]}</p>
+          <p className="mt-1 text-xs sm:text-sm text-red-600">
+            {errors[name]}
+          </p>
         )}
-        
       </div>
     );
   };
@@ -267,12 +245,7 @@ export default function StudentProfile() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {renderInput("Name", "name", studentDetails.name)}
                   {renderInput("Email", "email", studentDetails.email, "email")}
-                  {renderInput(
-                    "Password",
-                    "password",
-                    studentDetails.password,
-                    "password"
-                  )}
+                  {renderInput("Password", "password", studentDetails.password)}
                   {renderInput(
                     "Phone Number",
                     "phone",
@@ -371,6 +344,7 @@ export default function StudentProfile() {
             </form>
           </div>
 
+          {/* Resume Upload Section */}
           <div className="bg-white -order-1 md:order-1 rounded-xl p-4 sm:p-6 shadow-md">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
               Resume

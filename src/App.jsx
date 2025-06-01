@@ -13,6 +13,7 @@ import Layout from "./Hrdashboard/Layout";
 import HRSchedulePage from "./Hrdashboard/pages/hrSchedule";
 import ForgotPassword from "./Landing/components/ForgotPassword";
 import Navbar from "./Landing/components/Navbar";
+import ChangePassword from "./studentsComponents/components/ChangePassword"; // ✅ Added
 
 import "./App.css";
 
@@ -33,6 +34,7 @@ function App() {
 
   return (
     <>
+      {/* Optional Navbar */}
       {/* <Navbar /> */}
 
       {/* ✅ Padding only for main page */}
@@ -44,7 +46,6 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        {/* <Route path="/otp-login" element={<OTPLogin />} /> */}
 
         {/* HR Dashboard Routes */}
         <Route path="/hire" element={<Layout />}>
@@ -57,6 +58,14 @@ function App() {
           element={
             <StudentLayout>
               <StudentProfile />
+            </StudentLayout>
+          }
+        />
+        <Route
+          path="/ChangePassword" // ✅ New route for Change Password
+          element={
+            <StudentLayout>
+              <ChangePassword />
             </StudentLayout>
           }
         />
