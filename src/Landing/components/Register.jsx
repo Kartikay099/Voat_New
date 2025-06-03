@@ -20,24 +20,34 @@ export default function Register() {
   const [tempToken, setTempToken] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Attempts logic
   const [attemptsLeft, setAttemptsLeft] = useState(3);
-  const [timer, setTimer] = useState(0);
-  const [inputsDisabled, setInputsDisabled] = useState(false);
+  const [lockTimer, setLockTimer] = useState(0);
 
   const inputRefs = useRef([]);
 
   useEffect(() => {
-    if (timer === 0) {
-      setInputsDisabled(false);
-      return;
-    }
-    if (inputsDisabled) {
+    if (resendTimer > 0) {
       const interval = setInterval(() => {
-        setTimer((t) => t - 1);
+        setResendTimer((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [timer, inputsDisabled]);
+  }, [resendTimer]);
+
+  useEffect(() => {
+    if (lockTimer > 0) {
+      const interval = setInterval(() => {
+        setLockTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (lockTimer === 0 && attemptsLeft === 0) {
+      // Reset attempts after lock time ends
+      setAttemptsLeft(3);
+    }
+  }, [lockTimer, attemptsLeft]);
 
   const validateName = (name) => /^[a-zA-Z\s]{3,50}$/.test(name.trim());
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -56,8 +66,8 @@ export default function Register() {
     setSelectedFile(file);
   };
 
-  const handleGetOtp = async (e) => {
-    e.preventDefault();
+  const handleGetOtp = async (e, isResend = false) => {
+    if (e) e.preventDefault();
 
     if (!validateName(name)) {
       toast.error("Invalid Name. Only alphabets and spaces allowed (3-50 chars).");
@@ -89,29 +99,24 @@ export default function Register() {
 
       const { data } = await axios.post("http://localhost:3001/signup", formData);
       setTempToken(data.tempToken);
-      toast.success("OTP sent! Please check your email.");
+      toast.success(isResend ? "OTP resent!" : "OTP sent! Please check your email.");
     } catch (error) {
-      // Commented out for debugging OTP UI
-      /*
-      if (error.response?.data?.message) {
-        toast.error(`Signup failed: ${error.response.data.message}`);
-        return;
-      } else {
-        toast.error("Signup failed due to server error.");
-        return;
-      }
-      */
-      toast("Bypassing error temporarily for OTP screen...", { icon: "⚠️" });
+      toast.error("Failed to send OTP, please try again.");
+      return;
     } finally {
       setLoading(false);
       setShowOtp(true);
-      setAttemptsLeft(3);
       setOtp(new Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+      setResendTimer(60);
+      // Reset attempts and lock on new OTP
+      setAttemptsLeft(3);
+      setLockTimer(0);
     }
   };
 
   const handleOtpChange = (e, idx) => {
-    if (inputsDisabled) return;
+    if (lockTimer > 0) return; // disable input if locked
     const val = e.target.value.replace(/[^0-9]/g, "");
     if (!val) return;
     const newOtp = [...otp];
@@ -121,7 +126,7 @@ export default function Register() {
   };
 
   const handleOtpKeyDown = (e, idx) => {
-    if (inputsDisabled) return;
+    if (lockTimer > 0) return; // disable input if locked
     if (e.key === "Backspace") {
       if (otp[idx]) {
         const newOtp = [...otp];
@@ -135,7 +140,11 @@ export default function Register() {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (inputsDisabled || loading) return;
+    if (loading) return;
+    if (lockTimer > 0) {
+      toast.error(`Too many attempts. Please wait ${lockTimer}s.`);
+      return;
+    }
     if (otp.includes("")) {
       toast.error("Please enter complete OTP.");
       return;
@@ -154,29 +163,24 @@ export default function Register() {
       setShowOtp(false);
       setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      const newAttempts = attemptsLeft - 1;
-      setAttemptsLeft(newAttempts);
-      if (error.response?.data?.message) {
-        toast.error(`Incorrect OTP: ${error.response.data.message}`);
-      } else {
-        toast.error("Incorrect OTP.");
-      }
-
-      if (newAttempts <= 0) {
-        setInputsDisabled(true);
-        setTimer(60);
-        toast.error("Too many failed attempts. Please wait 60 seconds.");
-      }
-
+      // Wrong OTP case
+      setAttemptsLeft((prev) => prev - 1);
+      toast.error(
+        `Incorrect OTP. Attempts left: ${attemptsLeft - 1 > 0 ? attemptsLeft - 1 : 0}`
+      );
       setOtp(new Array(6).fill(""));
       inputRefs.current[0]?.focus();
+
+      if (attemptsLeft - 1 <= 0) {
+        setLockTimer(60); // lock for 60 seconds
+        toast.error("Too many wrong attempts. Please wait 60 seconds.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-   
     <section className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-indigo-100 transition-colors duration-500">
       <Toaster position="top-right" />
 
@@ -195,7 +199,6 @@ export default function Register() {
         </div>
 
         <div className="md:w-1/2 p-8 flex flex-col justify-center items-center">
-          {/* Show tabs ONLY if NOT on OTP page */}
           {!showOtp && (
             <div className="mb-6 flex justify-center w-full max-w-md">
               <div className="flex bg-gray-100 rounded-full p-1 relative w-[200px]">
@@ -256,7 +259,7 @@ export default function Register() {
                     }}
                     maxLength={50}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400 transition-colors duration-300"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400"
                     placeholder="Enter your name"
                   />
                 </div>
@@ -271,7 +274,7 @@ export default function Register() {
                     onChange={(e) => setEmail(e.target.value)}
                     maxLength={100}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400 transition-colors duration-300"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -287,8 +290,8 @@ export default function Register() {
                     minLength={8}
                     maxLength={30}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-gray-900 bg-white placeholder-blue-400 transition-colors duration-300"
-                    placeholder="At least 8 chars, uppercase, lowercase, digit, special"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-m text-gray-900  placeholder-blue-400 bg-white"
+                    placeholder="Min 8 chars with upper, lower, digit & special"
                   />
                   <span
                     className="absolute top-9 right-3 cursor-pointer text-gray-600"
@@ -308,9 +311,8 @@ export default function Register() {
                       accept="application/pdf"
                       onChange={handleFileChange}
                       required
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 transition-colors duration-300"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
                     />
-    
                   </div>
                 )}
 
@@ -325,20 +327,17 @@ export default function Register() {
                       : "bg-blue-700 hover:bg-blue-800 text-white"
                   }`}
                 >
-                  {loading && (
-                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                  )}
+                  {loading && <Loader2 className="animate-spin mr-2 h-5 w-5" />}
                   Get OTP
-                  
                 </motion.button>
+
                 <p
-    onClick={() => navigate("/login")}
-    className="text-center hover:underline cursor-pointer"
-  >
-    Go to Login Page 
-  </p>
+                  onClick={() => navigate("/login")}
+                  className="text-center hover:underline cursor-pointer"
+                >
+                  Go to Login Page
+                </p>
               </motion.form>
-              
             ) : (
               <motion.div
                 key="otp"
@@ -346,81 +345,85 @@ export default function Register() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
-                className="w-full max-w-md text-center"
+                className="w-full max-w-md flex flex-col items-center"
               >
-                <h2 className="text-2xl font-bold mb-6 text-gray-900">
+                <h2 className="text-center text-2xl font-bold mb-6 text-gray-900">
                   Enter OTP
                 </h2>
 
-                <p className="mb-4 text-gray-700">
-                  {inputsDisabled
-                    ? `Please wait ${timer}s before retrying`
-                    : `You have ${attemptsLeft} attempt${attemptsLeft > 1 ? "s" : ""} left`}
-                </p>
-
-                <div className="flex justify-center space-x-2 mb-6">
-                  {otp.map((digit, idx) => (
+                <div className="flex space-x-2 mb-4">
+                  {otp.map((val, idx) => (
                     <input
                       key={idx}
-                      ref={(el) => (inputRefs.current[idx] = el)}
                       type="text"
+                      inputMode="numeric"
                       maxLength={1}
-                      value={digit}
+                      value={val}
                       onChange={(e) => handleOtpChange(e, idx)}
                       onKeyDown={(e) => handleOtpKeyDown(e, idx)}
-                      disabled={inputsDisabled}
-                      className={`w-12 h-12 text-center text-xl border-2 rounded transition-all focus:outline-none focus:ring-2 ${
-                        inputsDisabled
-                          ? "border-gray-400 focus:ring-gray-400 cursor-not-allowed"
-                          : "border-gray-300 focus:ring-blue-500"
+                      disabled={loading || lockTimer > 0}
+                      ref={(el) => (inputRefs.current[idx] = el)}
+                      className={`w-10 h-12 text-center text-lg border rounded-md ${
+                        lockTimer > 0
+                          ? "bg-gray-200 cursor-not-allowed"
+                          : "bg-white"
                       }`}
                     />
                   ))}
                 </div>
 
-                <button
+                {lockTimer > 0 && (
+                  <p className="mb-4 text-red-600 font-semibold">
+                    Too many wrong attempts. Please wait {lockTimer}s.
+                  </p>
+                )}
+
+                <motion.button
                   onClick={handleVerifyOtp}
-                  disabled={inputsDisabled || loading}
-                  className={`w-full py-2 rounded-lg font-semibold text-white transition-colors duration-300 ${
-                    inputsDisabled || loading
+                  disabled={loading || lockTimer > 0}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`w-full font-semibold py-2 rounded-lg transition duration-300 flex items-center justify-center ${
+                    loading || lockTimer > 0
                       ? "bg-blue-300 cursor-not-allowed"
-                      : "bg-blue-700 hover:bg-blue-800"
-}`}
->
-{loading ? (
-<Loader2 className="animate-spin inline mr-2" />
-) : null}
-Verify OTP
-</button>
+                      : "bg-blue-700 hover:bg-blue-800 text-white"
+                  }`}
+                >
+                  {loading && <Loader2 className="animate-spin mr-2 h-5 w-5" />}
+                  Verify OTP
+                </motion.button>
 
-<div className="flex justify-between mt-4 w-full text-sm text-blue-600">
-  <p
-    onClick={() => {
-      setShowOtp(false);
-      setOtp(new Array(6).fill(""));
-      setAttemptsLeft(3);
-      setInputsDisabled(false);
-    }}
-    className="hover:underline cursor-pointer"
-  >
-     Back to Register
-  </p>
-  <p
-    onClick={() => navigate("/login")}
-    className="hover:underline cursor-pointer"
-  >
-    Go to Login 
-  </p>
-</div>
+                <p className="mt-4 text-gray-600">
+                  Didn't receive OTP?{" "}
+                  <button
+                    onClick={(e) => {
+                      if (resendTimer === 0 && !loading) handleGetOtp(e, true);
+                    }}
+                    disabled={resendTimer !== 0 || loading}
+                    className={`text-blue-600 underline cursor-pointer ${
+                      resendTimer !== 0 ? "cursor-not-allowed text-gray-400" : ""
+                    }`}
+                  >
+                    Resend OTP {resendTimer > 0 && `(${resendTimer}s)`}
+                  </button>
+                </p>
 
-</motion.div>
-
-
-
-)}
-</AnimatePresence>
-</div>
-</motion.div>
-</section>
-);
+                <p
+                  onClick={() => {
+                    setShowOtp(false);
+                    setOtp(new Array(6).fill(""));
+                    setAttemptsLeft(3);
+                    setLockTimer(0);
+                  }}
+                  className="mt-4 text-sm text-blue-600 hover:underline cursor-pointer"
+                >
+                  Back to Signup
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </section>
+  );
 }

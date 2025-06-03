@@ -289,7 +289,23 @@ export default function OTPLogin() {
                   transition={{ duration: 0.5 }}
                   className="mb-6"
                 >
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
+                   {/* Back Button Added Here */}
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep(1);
+                        setOtp(Array(6).fill(""));
+                        setErrorMsg("");
+                        setAttemptsLeftOTP(3);
+                        setFreezeTimerOTP(0);
+                      }}
+                      className="text-gray-600 hover:underline text-sm"
+                    >
+                      &larr; Login with Password
+                    </button>
+                  </div>
+                  <label className="block text-sm font-medium text-bold text-gray-700 mb-2">Enter OTP</label>
                   <div className="flex justify-center gap-2 mb-3">
                     {otp.map((digit, index) => (
                       <motion.input
@@ -323,6 +339,22 @@ export default function OTPLogin() {
                         : "Resend OTP"}
                     </button>
                   </div>
+                   {/* Back Button Added Here
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep(1);
+                        setOtp(Array(6).fill(""));
+                        setErrorMsg("");
+                        setAttemptsLeftOTP(3);
+                        setFreezeTimerOTP(0);
+                      }}
+                      className="text-gray-600 hover:underline text-sm"
+                    >
+                      &larr; Back to Login
+                    </button>
+                  </div> */}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -350,6 +382,7 @@ export default function OTPLogin() {
                 </button>
               </div>
             ) : (
+              
               <button
                 type="submit"
                 disabled={freezeTimerOTP > 0 || loading}
@@ -364,18 +397,24 @@ export default function OTPLogin() {
                 ) : (
                   "Verify OTP"
                 )}
+                
               </button>
+              
             )}
+             
+             
+            
           </form>
 
           <div className="text-center mt-4">
             <span
       onClick={() => navigate('/register')}
-      className="text-blue-600 hover:underline text-m text-semibold font-medium cursor-pointer"
+      className="text-blue-600 hover:underline text-m text-bold  font-medium cursor-pointer"
     >
       Go to Register now
     </span>
           </div>
+           
         </motion.div>
       </motion.div>
     </div>
