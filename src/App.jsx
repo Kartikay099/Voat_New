@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import Register from "./Landing/components/Register";
+// import Register from "./Landing/components/Register.fixed";
 import Login from "./Landing/components/Login";
 import MainPages from "./Landing/components/MainPages";
 import StudentDashboard from "./studentsComponents/components/StudentDashboard";
