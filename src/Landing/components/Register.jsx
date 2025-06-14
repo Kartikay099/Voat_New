@@ -331,12 +331,21 @@ export default function Register() {
                   Get OTP
                 </motion.button>
 
-                <p
-                  onClick={() => navigate("/login")}
-                  className="text-center hover:underline cursor-pointer"
-                >
-                  Go to Login Page
-                </p>
+                 <div className="mt-4 flex justify-between">
+  <span
+    onClick={() => navigate('/')}
+    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
+  >
+    Go To Home
+  </span>
+  <span
+    onClick={() => navigate('/login')}
+    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
+  >
+    Go to Login Now
+  </span>
+
+</div>
               </motion.form>
             ) : (
               <motion.div

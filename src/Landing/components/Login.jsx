@@ -406,14 +406,21 @@ export default function OTPLogin() {
             
           </form>
 
-          <div className="text-center mt-4">
-            <span
-      onClick={() => navigate('/register')}
-      className="text-blue-600 hover:underline text-m text-bold  font-medium cursor-pointer"
-    >
-      Go to Register now
-    </span>
-          </div>
+    <div className="mt-4 flex justify-between">
+  <span
+    onClick={() => navigate('/')}
+    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
+  >
+    Go To Home
+  </span>
+  <span
+    onClick={() => navigate('/register')}
+    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all  duration-200 hover:underline hover:text-blue-700"
+  >
+    Go to Register now
+  </span>
+</div>
+
            
         </motion.div>
       </motion.div>

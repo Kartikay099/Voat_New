@@ -1,36 +1,73 @@
 import { useState, useEffect } from 'react';
-import { Bell, ChevronLeft, ChevronRight } from "lucide-react";
-import { useNotifications } from '../contexts/Notification';
+import { ChevronLeft, ChevronRight, Clock, User } from "lucide-react";
 
 export default function HRSchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
-  const { 
-    notifications, 
-    markAsRead, 
-    getNotificationsForDate,
-    markAllAsRead 
-  } = useNotifications();
 
   const [selectedDate, setSelectedDate] = useState(null);
-  const [filteredNotifications, setFilteredNotifications] = useState([]);
+  const [filteredInterviews, setFilteredInterviews] = useState([]);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [activeTab, setActiveTab] = useState('calendar');
 
-  const scheduledDays = [
-    { day: 3, month: 3, year: 2025 },
-    { day: 7, month: 3, year: 2025 },
-    { day: 12, month: 3, year: 2025 },
-    { day: 15, month: 3, year: 2025 },
-    { day: 18, month: 3, year: 2025 },
-    { day: 22, month: 3, year: 2025 },
-    { day: 25, month: 3, year: 2025 },
-    { day: 29, month: 3, year: 2025 },
-    { day: 5, month: 4, year: 2025 },
-    { day: 10, month: 4, year: 2025 },
-    { day: 15, month: 4, year: 2025 },
+  // Sample interview data with time slots and interviewers
+  const upcomingInterviews = [
+    { 
+      id: 1,
+      date: new Date(2025, 3, 3),
+      title: "Technical Interview - Infosys",
+      slot: "10:00 AM - 11:00 AM",
+      Candidate: "Rajesh Kumar (Tech Lead)",
+      status: "scheduled"
+    },
+    { 
+      id: 2,
+      date: new Date(2025, 3, 7),
+      title: "HR Discussion - TCS",
+      slot: "2:30 PM - 3:00 PM",
+      Candidate: "Priya Sharma (HR Manager)",
+      status: "scheduled"
+    },
+    { 
+      id: 3,
+      date: new Date(2025, 3, 12),
+      title: "Coding Assessment - Amazon",
+      slot: "4:00 PM - 5:30 PM",
+      Candidate: "Amit Patel (Senior Engineer)",
+      status: "pending"
+    },
+    { 
+      id: 4,
+      date: new Date(2025, 3, 15),
+      title: "Final Round - Wipro",
+      slot: "11:30 AM - 12:30 PM",
+      Candidate: "Neha Gupta (Hiring Manager)",
+      status: "pending"
+    },
+    { 
+      id: 5,
+      date: new Date(2025, 3, 18),
+      title: "Technical Screening - Tech Mahindra",
+      slot: "3:00 PM - 4:00 PM",
+      Candidate: "Vikram Singh (Architect)",
+      status: "scheduled"
+    },
+    { 
+      id: 6,
+      date: new Date(2025, 3, 22),
+      title: "Offer Discussion - Accenture",
+      slot: "1:00 PM - 2:00 PM",
+      Candidate: "Ananya Das (HR Business Partner)",
+      status: "scheduled"
+    }
   ];
+
+  const scheduledDays = upcomingInterviews.map(interview => ({
+    day: interview.date.getDate(),
+    month: interview.date.getMonth(),
+    year: interview.date.getFullYear()
+  }));
 
   useEffect(() => {
     const handleResize = () => {
@@ -67,40 +104,36 @@ export default function HRSchedulePage() {
       return newDate;
     });
     setSelectedDate(null);
-    setFilteredNotifications([]);
+    setFilteredInterviews([]);
   };
 
-  const filterNotificationsByDate = (day) => {
+  const filterInterviewsByDate = (day) => {
     if (!day) return;
     const selected = new Date(currentYear, currentMonth, day);
     setSelectedDate(selected);
-    setFilteredNotifications(
-      notifications.filter(n =>
-        n.date &&
-        n.date.getDate() === day &&
-        n.date.getMonth() === currentMonth &&
-        n.date.getFullYear() === currentYear
+    setFilteredInterviews(
+      upcomingInterviews.filter(interview =>
+        interview.date &&
+        interview.date.getDate() === day &&
+        interview.date.getMonth() === currentMonth &&
+        interview.date.getFullYear() === currentYear
       )
     );
-    if (isMobileView) setActiveTab('notifications');
+    if (isMobileView) setActiveTab('interviews');
   };
 
   const clearDateFilter = () => {
     setSelectedDate(null);
-    setFilteredNotifications([]);
+    setFilteredInterviews([]);
     if (isMobileView) setActiveTab('calendar');
   };
 
   const formatDateDisplay = (date) => date ? `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` : '';
 
-  const handleMarkAllAsRead = () => {
-    markAllAsRead();
-  };
-
   return (
-    <div className="max-w-[1800px] mx-auto p-2 sm:p-4 md:p-6 h-screen flex flex-col overflow-hidden ">
+    <div className="max-w-[1800px] mx-auto p-2 sm:p-4 md:p-6 h-screen flex flex-col overflow-hidden">
       {isMobileView && (
-        <div className="flex mb-4 border-b border-gray-200 ">
+        <div className="flex mb-4 border-b border-gray-200">
           <button
             className={`flex-1 py-2 font-medium ${activeTab === 'calendar' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
             onClick={() => setActiveTab('calendar')}
@@ -108,10 +141,10 @@ export default function HRSchedulePage() {
             Calendar
           </button>
           <button
-            className={`flex-1 py-2 font-medium ${activeTab === 'notifications' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('notifications')}
+            className={`flex-1 py-2 font-medium ${activeTab === 'interviews' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('interviews')}
           >
-            Notifications
+            Interviews
           </button>
         </div>
       )}
@@ -158,7 +191,7 @@ export default function HRSchedulePage() {
                     selectedDate?.getMonth() === currentMonth &&
                     selectedDate?.getFullYear() === currentYear ?
                       'ring-2 ring-blue-500 ring-offset-1' : ''}`}
-                  onClick={() => filterNotificationsByDate(day)}
+                  onClick={() => filterInterviewsByDate(day)}
                 >
                   {day || ''}
                 </div>
@@ -186,12 +219,11 @@ export default function HRSchedulePage() {
           </div>
         ) : null}
 
-        {(isMobileView && activeTab === 'notifications') || !isMobileView ? (
+        {(isMobileView && activeTab === 'interviews') || !isMobileView ? (
           <div className={`bg-white rounded-xl p-4 md:p-6 lg:p-8 shadow-md ${isMobileView ? 'w-full' : 'w-full lg:w-[400px] xl:w-[450px]'} min-w-0 flex flex-col h-fit`}>
             <div className="flex items-center justify-between mb-4 md:mb-6">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-800 flex items-center">
-                <Bell size={18} className="mr-2 md:w-5 md:h-5" />
-                UPDATE
+              <h3 className="text-lg md:text-xl font-semibold text-gray-800">
+                Upcoming Interviews
               </h3>
               <div className="flex items-center gap-2">
                 {selectedDate && (
@@ -199,32 +231,31 @@ export default function HRSchedulePage() {
                     {formatDateDisplay(selectedDate)}
                   </span>
                 )}
-                {notifications.some(n => !n.read) && (
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 whitespace-nowrap"
-                  >
-                    Mark all as read
-                  </button>
-                )}
               </div>
             </div>
 
-            <div className="space-y-2 sm:space-y-3 md:space-y-4 max-h-[450px] overflow-y-auto"> {/* Added max-height and overflow */}
-              {(selectedDate ? filteredNotifications : notifications).length > 0 ? (
+            <div className="space-y-2 sm:space-y-3 md:space-y-4 max-h-[450px] overflow-y-auto">
+              {(selectedDate ? filteredInterviews : upcomingInterviews).length > 0 ? (
                 <>
-                  {(selectedDate ? filteredNotifications : notifications).map(notification => (
+                  {(selectedDate ? filteredInterviews : upcomingInterviews).map(interview => (
                     <div
-                      key={notification.id}
-                      className={`p-3 sm:p-4 rounded-lg ${notification.read ? 'bg-gray-50' : 'bg-blue-50 border border-blue-200'}`}
-                      onClick={() => markAsRead(notification.id)}
+                      key={interview.id}
+                      className={`p-3 sm:p-4 rounded-lg ${interview.status === 'completed' ? 'bg-gray-50' : 'bg-blue-50 border border-blue-200'}`}
                     >
-                      <p className={`${notification.read ? 'text-gray-600' : 'text-gray-800 font-medium'} text-xs sm:text-sm md:text-base`}>
-                        {notification.text}
-                      </p>
-                      {notification.date && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formatDateDisplay(notification.date)}
+                      <h4 className="font-medium text-sm sm:text-base text-gray-800">
+                        {interview.title}
+                      </h4>
+                      <div className="flex items-center mt-2 text-xs sm:text-sm text-gray-600">
+                        <Clock className="mr-2" size={14} />
+                        <span>{interview.slot}</span>
+                      </div>
+                      <div className="flex items-center mt-1 text-xs sm:text-sm text-gray-600">
+                        <User className="mr-2" size={14} />
+                        <span>{interview.Candidate}</span>
+                      </div>
+                      {interview.date && (
+                        <p className="text-xs text-gray-500 mt-2">
+                          {formatDateDisplay(interview.date)}
                         </p>
                       )}
                     </div>
@@ -234,8 +265,8 @@ export default function HRSchedulePage() {
                 <div className="text-center py-3 md:py-6"> 
                   <p className="text-gray-500 text-sm md:text-base">
                     {selectedDate
-                      ? `No Update for ${formatDateDisplay(selectedDate)}`
-                      : 'No new Update'
+                      ? `No interviews scheduled for ${formatDateDisplay(selectedDate)}`
+                      : 'No upcoming interviews'
                     }
                   </p>
                 </div>

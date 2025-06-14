@@ -5,12 +5,11 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronRight,
-  MessageCircle,
   Settings,
 } from 'lucide-react';
 
 const SubMenuButton = ({ item, isExpanded, toggleExpand, setMobileOpen }) => {
-  const hasChildren = item.children && item.children.length > 0;
+  const hasChildren = item.children?.length > 0;
 
   return (
     <div>
@@ -84,48 +83,32 @@ const MenuSection = ({ title, icon, basePath, subItems, isExpanded, toggleExpand
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState({});
 
-  const isActiveRoute =
-    subItems.some(
-      (item) =>
-        location.pathname.startsWith(item.path) ||
-        (item.children &&
-          item.children.some((child) => location.pathname.startsWith(child.path)))
-    ) || location.pathname.startsWith(basePath);
+  const isActiveRoute = subItems.some(
+    (item) =>
+      location.pathname.startsWith(item.path) ||
+      item.children?.some((child) => location.pathname.startsWith(child.path))
+  ) || location.pathname.startsWith(basePath);
 
   useEffect(() => {
-    if (isActiveRoute && !isExpanded) {
-      toggleExpand();
-    }
+    if (isActiveRoute && !isExpanded) toggleExpand();
   }, [isActiveRoute]);
 
   const toggleItemExpand = (path) => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [path]: !prev[path],
-    }));
+    setExpandedItems((prev) => ({ ...prev, [path]: !prev[path] }));
   };
 
   return (
     <div className="space-y-1">
-      <div
-        className={`w-full rounded-lg overflow-hidden ${
-          isActiveRoute ? 'bg-[#0F52BA]' : 'bg-gray-100 hover:bg-gray-200'
-        }`}
-      >
+      <div className={`w-full rounded-lg overflow-hidden ${isActiveRoute ? 'bg-[#0F52BA]' : 'bg-gray-100 hover:bg-gray-200'}`}>
         <div className="w-full flex items-center justify-between py-3 px-4 transition-colors">
           <NavLink
             to={basePath}
-            className={({ isActive }) =>
-              `flex-1 flex items-center gap-2 ${
-                isActiveRoute ? 'text-white' : 'text-gray-700'
-              }`
-            }
+            className={`flex-1 flex items-center gap-2 ${isActiveRoute ? 'text-white' : 'text-gray-700'}`}
             onClick={() => setMobileOpen(false)}
           >
             {icon}
             {title}
           </NavLink>
-
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -161,104 +144,82 @@ const MenuSection = ({ title, icon, basePath, subItems, isExpanded, toggleExpand
 
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const [expandedSections, setExpandedSections] = useState({});
- 
+
   const toggleSection = (key) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const hiringItems = [
-    { path: '/post-job', label: 'Post Job' },
+    { path: '/hire/post-job', label: 'Post Job' },
     {
-      path: '/all-jobs',
+      path: '/hire/all-jobs',
       label: 'All Jobs',
-      children: [{ path: '/applications', label: 'Applications' }],
+      children: [
+        { path: '/hire/applications', label: 'Applications' },
+        // { path: '/hire/all-applications', label: 'All Applications' }
+      ],
     },
-    { path: '/approved-students', label: 'Approved Students' },
-    { path: '/students-on-hold', label: 'Hold Student' },
+    // { path: '/hire/approved-students', label: 'Approved Students' },
+    // { path: '/hire/students-on-hold', label: 'Hold Student' },
+    // { path: '/hire/rejected-students', label: 'Rejected Students' },
   ];
 
   const quickHireItems = [
-    { path: '/data-request', label: 'Data Request' },
-    { path: '/get-profile', label: 'Get Profile / Hire HR' },
+    { path: '/hire/data-request', label: 'Data Request' },
+    { path: '/hire/get-profile', label: 'Get Profile / Hire HR' },
+    { path: '/hire/hiring', label: 'Hiring' },
   ];
 
   return (
     <>
-      {/* Mobile overlay */}
       {mobileOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 lg:hidden" onClick={() => setMobileOpen(false)} />
       )}
-      
-      {/* Sidebar */}
-      <aside 
+
+      <aside
         className={`
-          fixed lg:sticky
-          top-0
-          left-0
-          w-64
-          bg-white
-          border-r
-          border-gray-200
-          flex
-          flex-col
-          overflow-y-auto
-          transition-transform
-          duration-300
-          ease-in-out
+          fixed lg:sticky top-0 left-0 w-64 bg-white border-r border-gray-200
+          flex flex-col overflow-y-auto transition-transform duration-300 ease-in-out
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         <UserAvatar />
 
         <div className="flex flex-col flex-1 overflow-y-auto pb-6 px-4 space-y-2">
-          <div className="w-full rounded-lg overflow-hidden">
-            <NavLink
-              to="/profile"
-              className={({ isActive }) =>
-                `w-full flex items-center justify-between py-3 px-4 transition-colors ${
-                  isActive
-                    ? 'bg-[#0F52BA] text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`
-              }
-              onClick={() => setMobileOpen(false)}
-            >
-              <div className="flex-1 flex items-center gap-2">
-                <User size={18} />
-                Profile
-              </div>
-            </NavLink>
-          </div>
+          <NavLink
+            to="/hire/hrprofile"
+            className={({ isActive }) =>
+              `w-full flex items-center justify-between py-3 px-4 rounded-lg transition-colors ${
+                isActive ? 'bg-[#0F52BA] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`
+            }
+            onClick={() => setMobileOpen(false)}
+          >
+            <div className="flex-1 flex items-center gap-2">
+              <User size={18} />
+              Profile
+            </div>
+          </NavLink>
 
-          <div className="w-full rounded-lg overflow-hidden">
-            <NavLink
-              to="/schedule"
-              className={({ isActive }) =>
-                `w-full flex items-center justify-between py-3 px-4 transition-colors ${
-                  isActive
-                    ? 'bg-[#0F52BA] text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`
-              }
-              onClick={() => setMobileOpen(false)}
-            >
-              <div className="flex-1 flex items-center gap-2">
-                <Settings size={18} />
-                Schedule
-              </div>
-            </NavLink>
-          </div>
+          <NavLink
+            to="/hire/schedule"
+            className={({ isActive }) =>
+              `w-full flex items-center justify-between py-3 px-4 rounded-lg transition-colors ${
+                isActive ? 'bg-[#0F52BA] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`
+            }
+            onClick={() => setMobileOpen(false)}
+          >
+            <div className="flex-1 flex items-center gap-2">
+              <Settings size={18} />
+              Schedule
+            </div>
+          </NavLink>
 
           <MenuSection
             title="HIRING"
             icon={<User size={18} />}
-            basePath="/hiring"
+            basePath="/hire/post-job"
             subItems={hiringItems}
             isExpanded={!!expandedSections['HIRING']}
             toggleExpand={() => toggleSection('HIRING')}
@@ -268,23 +229,12 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           <MenuSection
             title="Quick Hire"
             icon={<User size={18} />}
-            basePath="/quick-hire"
+            basePath="/hire/quick-hire"
             subItems={quickHireItems}
             isExpanded={!!expandedSections['Quick Hire']}
             toggleExpand={() => toggleSection('Quick Hire')}
             setMobileOpen={setMobileOpen}
           />
-        </div>
-
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex justify-center space-x-4">
-            <button className="p-2 text-[#0F52BA] hover:bg-blue-50 rounded-full transition-colors">
-              <MessageCircle size={18} />
-            </button>
-            <button className="p-2 text-[#0F52BA] hover:bg-blue-50 rounded-full transition-colors">
-              <Settings size={18} />
-            </button>
-          </div>
         </div>
       </aside>
     </>

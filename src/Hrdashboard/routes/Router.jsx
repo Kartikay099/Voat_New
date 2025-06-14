@@ -10,33 +10,31 @@ import HRSchedulePage from "../pages/hrSchedule";
 import PostJob from "../pages/PostJob";
 import AllJobs from "../pages/Alljobbs";
 import Applications from "../pages/Applications";
+import AllApplicationsContent from "../hr pages/AllApplicationsContent";
 import ApprovedStudents from "../pages/ApprovedStudents";
 import StudentsOnHold from "../pages/StudentsOnHold";
+import RejectedStudents from "../hr pages/Rejectedstudent";
 import QuickHire from "../pages/QuickHire";
 import DataRequest from "../pages/DataRequest";
 import GetProfile from "../pages/GetProfile";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/hire",
     element: <Layout />,
     children: [
       {
         index: true,
-        element: <Navigate to="/hrprofile" replace />
+        element: <Navigate to="/hire/post-job" replace />
       },
       {
         path: "hrprofile",
-        element: <hrProfile />
+        element: <Profile />
       },
       {
         path: "schedule",
         element: <HRSchedulePage />
       },
-    //   {
-    //     path: "hiring",
-    //     element: <Hirin />
-    //   },
       {
         path: "post-job",
         element: <PostJob />
@@ -47,7 +45,29 @@ const router = createBrowserRouter([
       },
       {
         path: "applications",
-        element: <Applications />
+        element: <Applications />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="all" replace />
+          },
+          {
+            path: "all",
+            element: <AllApplicationsContent />
+          },
+          {
+            path: "approved",
+            element: <ApprovedStudents />
+          },
+          {
+            path: "hold",
+            element: <StudentsOnHold />
+          },
+          {
+            path: "rejected",
+            element: <RejectedStudents />
+          }
+        ]
       },
       {
         path: "approved-students",
