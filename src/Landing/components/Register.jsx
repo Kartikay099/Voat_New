@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Home, UserPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -334,17 +334,16 @@ export default function Register() {
                  <div className="mt-4 flex justify-between">
   <span
     onClick={() => navigate('/')}
-    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
+    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
   >
-    Go To Home
+    <Home size={16} /> Go To Home
   </span>
   <span
     onClick={() => navigate('/login')}
-    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
+    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
   >
-    Go to Login Now
+    <UserPlus size={16} /> Go to Login Now
   </span>
-
 </div>
               </motion.form>
             ) : (
