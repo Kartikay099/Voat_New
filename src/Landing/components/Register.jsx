@@ -1,19 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { apiUrl } from "../../utilits/apiUrl";
-
-const loadOtpStatus = (email) => {
-  const data = localStorage.getItem(`otp_status_${email}`);
-  return data ? JSON.parse(data) : null;
-};
-
-const saveOtpStatus = (email, data) => {
-  localStorage.setItem(`otp_status_${email}`, JSON.stringify(data));
-};
+import Cookies from "js-cookie";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -25,133 +17,61 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  //OTP code
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [tempToken, setTempToken] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otpError, setOtpError] = useState("");
-
   const [resendTimer, setResendTimer] = useState(0);
+  // Attempts logic
   const [attemptsLeft, setAttemptsLeft] = useState(3);
   const [lockTimer, setLockTimer] = useState(0);
-
+  const [otpExpiresIn, setOtpExpiresIn] = useState(0);
+  //verify OTP
+  const [verifyAttemptsLeft, setVerifyAttemptsLeft] = useState(3);
+  const [isBlockTime, setIsBlockTime] = useState(false);
   const inputRefs = useRef([]);
 
   useEffect(() => {
-    if (email) {
-      const stored = loadOtpStatus(email);
-      if (stored) {
-        const now = Date.now();
-        const newResend = Math.max(0, Math.ceil((stored.resendUntil - now) / 1000));
-        const newLock = Math.max(0, Math.ceil((stored.lockUntil - now) / 1000));
-        setResendTimer(newResend);
-        setLockTimer(newLock);
-        setAttemptsLeft(stored.attemptsLeft ?? 3);
-      }
-    }
-  }, [email]);
-
-  useEffect(() => {
-    if (resendTimer > 0) {
+    if (otpExpiresIn > 0) {
       const interval = setInterval(() => {
-        setResendTimer((prev) => prev - 1);
+        setOtpExpiresIn((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [resendTimer]);
+  }, [otpExpiresIn]);
 
   useEffect(() => {
-    if (lockTimer > 0) {
-      const interval = setInterval(() => {
-        setLockTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    } else if (lockTimer === 0 && attemptsLeft === 0) {
-      setAttemptsLeft(3);
+    const interval = setInterval(() => {
+      setResendTimer((prev) => Math.max(prev - 1, 0));
+      setLockTimer((prev) => Math.max(prev - 1, 0));
+      setOtpExpiresIn((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+
+    // ✅ Handle auto-reload condition separately
+    if (attemptsLeft === 0 && lockTimer === 0 && isBlockTime == true) {
+      window.location.reload(); // 🔁 Auto reloads the page
     }
-  }, [lockTimer, attemptsLeft]);
+
+    return () => clearInterval(interval);
+  }, [attemptsLeft, lockTimer]);
+  // ✅ include in deps
 
   const validateName = (name) => /^[a-zA-Z\s]{3,50}$/.test(name.trim());
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const validatePassword = (password) => /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/.test(password);
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const validatePassword = (password) =>
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/.test(
+      password
+    );
   const validateFile = (file) => file && file.type === "application/pdf";
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return setSelectedFile(null);
-    if (!validateFile(file)) {
-      toast.error("Please upload a valid PDF file.");
-      e.target.value = null;
-      return;
-    }
     setSelectedFile(file);
   };
 
-  const handleGetOtp = async (e, isResend = false) => {
-    e?.preventDefault();
-    if (!validateName(name)) return toast.error("Invalid Name...");
-    if (activeTab === "left" && !validateFile(selectedFile)) return toast.error("Please upload a valid PDF resume.");
-
-    setLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("email", email.trim());
-      formData.append("password", password);
-      formData.append("role", activeTab === "left" ? "jobseeker" : "hr");
-      if (activeTab === "left") formData.append("file", selectedFile);
-
-      const { data } = await axios.post(`${apiUrl}/signup`, formData);
-
-      if (data.tempToken) {
-        setTempToken(data.tempToken);
-        toast.success(isResend ? "OTP resent!" : "OTP sent! Please check your email.");
-        setShowOtp(true);
-        setOtp(Array(6).fill(""));
-        if (inputRefs.current[0]) inputRefs.current[0].focus();
-        setResendTimer(60);
-        setAttemptsLeft(3);
-        setLockTimer(0);
-
-        const now = Date.now();
-        saveOtpStatus(email, {
-          resendUntil: now + 60 * 1000,
-          lockUntil: 0,
-          attemptsLeft: 3,
-        });
-      } else if (data.message) {
-        toast.error(data.message + " You might want to try logging in.");
-        setShowOtp(false);
-      } else {
-        toast.error("Signup request failed. Please try again.");
-        setShowOtp(false);
-      }
-    } catch (err) {
-      if (err.response && err.response.status === 401 && err.response.data && err.response.data.tempToken) {
-        setTempToken(err.response.data.tempToken);
-        toast.success(isResend ? "OTP resent successfully!" : "OTP previously sent. Please check your email and enter it below.");
-        setShowOtp(true);
-        setOtp(Array(6).fill(""));
-        if (inputRefs.current[0]) inputRefs.current[0].focus();
-        setResendTimer(60);
-        setAttemptsLeft(3);
-        setLockTimer(0);
-
-        const now = Date.now();
-        saveOtpStatus(email, {
-          resendUntil: now + 60 * 1000,
-          lockUntil: 0,
-          attemptsLeft: 3,
-        });
-      } else {
-        toast.error(err?.response?.data?.error || err?.response?.data?.message || "Failed to send OTP, please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  //handle otpChange
   const handleOtpChange = (e, idx) => {
     if (lockTimer > 0) return; // disable input if locked
     const val = e.target.value.replace(/[^0-9]/g, "");
@@ -162,6 +82,7 @@ export default function Register() {
     if (idx < 5) inputRefs.current[idx + 1].focus();
   };
 
+  //handle OtpKeyDown
   const handleOtpKeyDown = (e, idx) => {
     if (lockTimer > 0) return; // disable input if locked
     if (e.key === "Backspace") {
@@ -175,65 +96,193 @@ export default function Register() {
     }
   };
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (loading) return;
-    if (lockTimer > 0) return toast.error(`Too many attempts. Please wait ${lockTimer}s.`);
-    if (otp.includes("")) return toast.error("Please enter complete OTP.");
+  //handle GetOtp
+  const handleGetOtp = async (e, isResend = false) => {
+    if (e) e.preventDefault();
+
+    if (!validateName(name)) {
+      toast.error(
+        "Invalid Name. Only alphabets and spaces allowed (3-50 chars)."
+      );
+      return;
+    }
+    if (!validateEmail(email)) {
+      toast.error("Invalid Email format.");
+      return;
+    }
+    if (!validatePassword(password)) {
+      toast.error(
+        "Password must be 8+ chars with uppercase, lowercase, digit, special char."
+      );
+      return;
+    }
+    if (activeTab === "left" && !validateFile(selectedFile)) {
+      toast.error("Please upload a valid PDF resume.");
+      return;
+    }
 
     setLoading(true);
     try {
-      await axios.post(`${apiUrl}/verify-otp`, {
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("email", email.trim());
+      formData.append("password", password);
+      formData.append("role", activeTab === "left" ? "jobseeker" : "hr");
+      if (activeTab === "left") {
+        formData.append("file", selectedFile);
+      }
+
+      const { data } = await axios.post(`${apiUrl}/signup`, formData);
+      console.log(data, "data");
+      setTempToken(data.tempToken);
+      toast.success(data?.message);
+
+      // Set timers ONLY if valid resend state
+      // if (!isResend || data.otpExpiresIn >= 60) {
+      //   setOtpExpiresIn(60);
+      // }
+      setResendTimer(data?.retryIn || 0);
+      setOtpExpiresIn(data.otpExpiresIn || 0);
+      setAttemptsLeft(data.attemptsLeft ?? 3);
+      setVerifyAttemptsLeft(data?.otpVerifyAttempts);
+      setLockTimer(data.blockDuration || 0);
+      if (data.blockDuration) {
+        setIsBlockTime(true);
+      }
+      //Otp
+      setShowOtp(true);
+      setOtp(new Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+    } catch (error) {
+      const data = error.response?.data;
+      console.log(data, error, "error");
+      toast.error(data?.error || "Failed to send OTP, please try again.");
+      console.log(resendTimer, "resendTimer");
+      // Always respect backend timing on error
+      setResendTimer(data?.retryIn || 0);
+      console.log(resendTimer, "resendTimer");
+      setOtpExpiresIn(data?.otpExpiresIn || 0);
+      setAttemptsLeft(data?.attemptsLeft ?? 0);
+      setLockTimer(data?.blockDuration || 0);
+      if (data.blockDuration) {
+        setIsBlockTime(true);
+      }
+      //otp
+      // setShowOtp(true);
+      // setOtp(new Array(6).fill(""));
+      // inputRefs.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //handle verifyOtp
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    if (otp.includes("")) {
+      toast.error("Please enter complete OTP.");
+      return;
+    }
+
+    if (otpExpiresIn === 0) {
+      toast.error("OTP expired");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(`${apiUrl}/verify-otp`, {
         email,
         otp: otp.join(""),
         tempToken,
         type: "signup",
       });
+      const { message, token, data } = response.data; // ✅ CORRECT ACCESS
+      console.log(response, data, "data");
+      toast(message);
+      Cookies.set("jwtToken", token, { expires: 7 });
+      Cookies.set("userDetails", JSON.stringify(data), { expires: 7 });
+      // setShowOtp(false);
+      if (data?.attemptsLeft) setVerifyAttemptsLeft(data?.attemptsLeft ?? 0);
 
-      toast.success("OTP verified! Account created.");
-      setOtpError("");
-
-      setShowOtp(false);
-      localStorage.removeItem(`otp_status_${email}`);
-      setTimeout(() => navigate("/login"), 1500);
-   } catch (error) {
-  const backendMessage = error.response?.data?.error || "OTP verification failed.";
-  const backendAttemptsLeft = error.response?.data?.attemptsLeft;
-
-  toast.error(backendMessage);
-  setOtpError(backendMessage);
-  setOtp(new Array(6).fill(""));
-  if (inputRefs.current[0]) inputRefs.current[0].focus();
-
-  if (typeof backendAttemptsLeft === "number") {
-    setAttemptsLeft(backendAttemptsLeft);
-    if (backendAttemptsLeft <= 0) setLockTimer(60);
-  } else {
-    setAttemptsLeft((prev) => {
-      const newAttempts = prev - 1;
-      if (newAttempts <= 0) setLockTimer(60);
-      return Math.max(0, newAttempts);
-    });
-  }
-
-  const now = Date.now();
-  saveOtpStatus(email, {
-    resendUntil: now + resendTimer * 1000,
-    lockUntil: lockTimer > 0 ? now + lockTimer * 1000 : 0,
-    attemptsLeft: backendAttemptsLeft ?? attemptsLeft,
-  });
-}
-finally {
+      if (data?.remainingBlockSeconds) {
+        setLockTimer(apiData.remainingBlockSeconds ?? 0);
+      }
+      switch (data?.role) {
+        case "jobseeker":
+          setTimeout(() => navigate("/profile"), 1500);
+          break;
+        case "hr":
+          setTimeout(() => navigate("/profile"), 1500);
+          break;
+        case "admin":
+          setTimeout(() => navigate("/profile"), 1500);
+          break;
+        default:
+          setTimeout(() => navigate("/login"), 1500);
+          break;
+      }
+    } catch (error) {
+      console.log(error, "error");
+      const errorData = error.response?.data;
+      toast.error(errorData?.error || "Internal Server");
+      // Wrong OTP case
+      setVerifyAttemptsLeft(errorData?.attemptsLeft ?? 0);
+      if (errorData?.remainingBlockSeconds) {
+        setLockTimer(errorData.remainingBlockSeconds ?? 0);
+        setVerifyAttemptsLeft(errorData?.attemptsLeft ?? 0);
+        setAttemptsLeft(error?.attemptsLeft ?? 0);
+      }
+    } finally {
       setLoading(false);
     }
   };
-  const getOtpButtonLabel = () => {
-    if (lockTimer > 0) return `Blocked: ${lockTimer}s`;
-    if (resendTimer > 0) return `Cooldown: ${resendTimer}s`;
-    return `Get OTP [${attemptsLeft}]`;
+
+  const handleResendOtp = async () => {
+    try {
+      setLoading(true);
+
+      const { data } = await axios.post(`${apiUrl}/resend-signup-otp`, {
+        email,
+        tempToken,
+      });
+      console.log(data, "data");
+      toast.success(data.message || "OTP resent successfully!");
+      setTempToken(data?.tempToken);
+      // Update states from backend response
+      setResendTimer(data.retryIn); // starts cooldown
+      setOtpExpiresIn(data.otpExpiresIn);
+      setAttemptsLeft(data.attemptsLeft ?? attemptsLeft);
+      setVerifyAttemptsLeft(data.verifyAttemptsLeft ?? 3);
+      setOtp(new Array(6).fill("")); // reset OTP input
+    } catch (error) {
+      console.log(error, "error");
+      const errMsg = error.response?.data?.error || "Failed to resend OTP.";
+      toast.error(errMsg);
+      const res = error.response?.data;
+      setOtpExpiresIn(res.otpExpiresIn ?? 0);
+      if (res?.retryIn) {
+        setResendTimer(res.retryIn);
+      }
+
+      if (res?.blockExpires || res?.remainingBlockSeconds) {
+        setLockTimer(res.remainingBlockSeconds);
+        setAttemptsLeft(data.attemptsLeft ?? attemptsLeft);
+        setVerifyAttemptsLeft(data.verifyAttemptsLeft ?? verifyAttemptsLeft);
+      }
+
+      if (typeof res?.attemptsLeft === "number") {
+        setAttemptsLeft(data.attemptsLeft ?? attemptsLeft);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const isOtpButtonDisabled = loading || lockTimer > 0 || resendTimer > 0;
+  // console.log(lockTimer, verifyAttemptsLeft, "verifyBlockTimer");
+
   return (
     <section className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-indigo-100 transition-colors duration-500">
       <Toaster position="top-right" />
@@ -294,7 +343,6 @@ finally {
                 exit={{ opacity: 0, y: -50 }}
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-md space-y-4"
-                onSubmit={handleGetOtp}
               >
                 <h2 className="text-center text-2xl font-bold mb-6 text-gray-900">
                   Create an Account
@@ -371,17 +419,44 @@ finally {
                 )}
 
                 <motion.button
-      type="submit"
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
-      disabled={isOtpButtonDisabled}
-      className={`w-full font-semibold py-2 rounded-lg transition duration-300 flex items-center justify-center ${
-        isOtpButtonDisabled ? "bg-blue-300 cursor-not-allowed" : "bg-blue-700 hover:bg-blue-800 text-white"
-      }`}
-    >
-      {loading && <Loader2 className="animate-spin mr-2 h-5 w-5" />}
-      {getOtpButtonLabel()}
-    </motion.button>
+                  type="button"
+                  onClick={handleGetOtp}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  disabled={loading || lockTimer > 0 || resendTimer > 0}
+                  className={`w-full font-semibold py-2 rounded-lg transition duration-300 flex items-center justify-center ${
+                    loading || lockTimer > 0 || resendTimer > 0
+                      ? "bg-blue-300 cursor-not-allowed"
+                      : "bg-blue-700 hover:bg-blue-800 text-white"
+                  }`}
+                >
+                  {loading && <Loader2 className="animate-spin mr-2 h-5 w-5" />}
+                  Get OTP ({attemptsLeft} Left)
+                </motion.button>
+                {/* <p className="text-sm text-gray-600">
+                  OTP expires in: {otpExpiresIn}s
+                </p> */}
+                {/* <p className="text-sm text-gray-600">
+                  Attempts left: {attemptsLeft}
+                </p> */}
+                {resendTimer > 0 && (
+                  <p className="text-red-500 font-medium">
+                    Please wait {resendTimer}s before requesting another OTP.
+                  </p>
+                )}
+
+                {lockTimer > 0 && (
+                  <p className="mb-4 text-red-600 font-semibold">
+                    Account is temporarily blocked for {lockTimer}s.
+                  </p>
+                )}
+
+                {/* {attemptsLeft === 0 &&
+                  lockTimer === 0 &&
+                  (() => {
+                    window.location.reload();
+                    return null;
+                  })()} */}
 
                 <p
                   onClick={() => navigate("/login")}
@@ -402,45 +477,29 @@ finally {
                 <h2 className="text-center text-2xl font-bold mb-6 text-gray-900">
                   Enter OTP
                 </h2>
-
                 <div className="flex space-x-2 mb-4">
-                  <>
-      <div className="flex space-x-2 mb-4">
-        {otp.map((val, idx) => (
-          <input
-            key={idx}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={val}
-            onChange={(e) => handleOtpChange(e, idx)}
-            onKeyDown={(e) => handleOtpKeyDown(e, idx)}
-            disabled={loading || lockTimer > 0}
-            ref={(el) => (inputRefs.current[idx] = el)}
-            className={`w-10 h-12 text-center text-lg border rounded-md ${
-              lockTimer > 0 ? "bg-gray-200 cursor-not-allowed" : "bg-white"
-            }`}
-          />
-        ))}
-      </div>
-      {otpError && (
-        <p className="text-red-600 text-sm font-medium mb-2 text-center">
-          {otpError}
-        </p>
-      )}
-    </>
+                  {otp.map((val, idx) => (
+                    <input
+                      key={idx}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={val}
+                      onChange={(e) => handleOtpChange(e, idx)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                      disabled={loading || lockTimer > 0 || otpExpiresIn === 0}
+                      ref={(el) => (inputRefs.current[idx] = el)}
+                      className={`w-10 h-12 text-center text-lg border rounded-md ${
+                        lockTimer > 0
+                          ? "bg-gray-200 cursor-not-allowed"
+                          : "bg-white"
+                      }`}
+                    />
+                  ))}
                 </div>
-
-                {lockTimer > 0 && (
-                  <p className="mb-4 text-red-600 font-semibold">
-                    Too many wrong attempts. Please wait {lockTimer}s.
-                  </p>
-                )}
-
-               
-      <motion.button
+                <motion.button
                   onClick={handleVerifyOtp}
-                  disabled={loading || lockTimer > 0}
+                  disabled={loading || lockTimer > 0} // verifyBlockTimer, verifyAttemptsLeft,
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   className={`w-full font-semibold py-2 rounded-lg transition duration-300 flex items-center justify-center ${
@@ -450,31 +509,46 @@ finally {
                   }`}
                 >
                   {loading && <Loader2 className="animate-spin mr-2 h-5 w-5" />}
-                  Verify OTP
+                  Verify OTP (
+                  {verifyAttemptsLeft <= 1
+                    ? verifyAttemptsLeft
+                    : verifyAttemptsLeft + "s"}
+                  )
                 </motion.button>
+                {lockTimer > 0 && (
+                  <p className="mb-4 text-red-600 font-semibold">
+                    Too many wrong attempts. Please wait {lockTimer}s.
+                  </p>
+                )}
                 <p className="mt-4 text-gray-600">
                   Didn't receive OTP?{" "}
-                  <button
-                    onClick={(e) => {
-                      if (resendTimer === 0 && !loading) handleGetOtp(e, true);
-                    }}
-                    disabled={resendTimer !== 0 || loading}
-                    className={`text-blue-600 underline cursor-pointer ${
-                      resendTimer !== 0
-                        ? "cursor-not-allowed text-gray-400"
-                        : ""
-                    }`}
-                  >
-                    Resend OTP {resendTimer > 0 && `(${resendTimer}s)`}
-                  </button>
+                  {otpExpiresIn <= 0 && (
+                    <button
+                      onClick={(e) => {
+                        if (otpExpiresIn === 0 && !loading) handleResendOtp();
+                      }}
+                      disabled={otpExpiresIn !== 0 || loading || lockTimer > 0}
+                      className={`text-blue-600 underline cursor-pointer ${
+                        otpExpiresIn !== 0
+                          ? "cursor-not-allowed text-gray-400"
+                          : ""
+                      }`}
+                    >
+                      Resend OTP (
+                      {attemptsLeft <= 1
+                        ? attemptsLeft + "left"
+                        : attemptsLeft + "lefts"}
+                      ) {otpExpiresIn > 0 && `(${otpExpiresIn}s)`}
+                    </button>
+                  )}
+                  {otpExpiresIn > 0 && `(${otpExpiresIn}s)`}
                 </p>
-
                 <p
                   onClick={() => {
                     setShowOtp(false);
                     setOtp(new Array(6).fill(""));
-                    setAttemptsLeft(3);
-                    setLockTimer(0);
+                    // setAttemptsLeft(3);
+                    // setLockTimer(0);
                   }}
                   className="mt-4 text-sm text-blue-600 hover:underline cursor-pointer"
                 >
