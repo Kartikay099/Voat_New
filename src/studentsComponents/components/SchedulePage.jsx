@@ -119,9 +119,9 @@ export default function SchedulePage() {
   return (
     <div className="flex">
       <Header />
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-25 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
         {isMobileView && (
-          <div className="flex mb-4 border-b border-gray-200 ">
+          <div className="flex mb-4 border-b border-gray-200">
             <button
               className={`flex-1 py-2 font-medium ${
                 activeTab === "calendar"

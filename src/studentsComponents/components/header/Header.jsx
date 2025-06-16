@@ -14,7 +14,6 @@ import MobileSidebarContent from "../sideBar/MobileSidebarContent";
 import DesktopSidebarContent from "../sideBar/DesktopSidebarContent";
 import { useNotifications } from "../../contexts/NotificationContext";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 
 export const navItems = [
   {
@@ -49,8 +48,6 @@ const Header = () => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleLogout = () => {
-    Cookies.remove("jwtToken");
-    Cookies.remove("userDetails");
     console.log("User logged out");
     navigate("/login");
   };
@@ -110,9 +107,7 @@ const Header = () => {
                       }`}
                       onClick={() => markAsRead(notification.id)}
                     >
-                      <p className="text-sm text-gray-800">
-                        {notification.text}
-                      </p>
+                      <p className="text-sm text-gray-800">{notification.text}</p>
                       {notification.date && (
                         <p className="text-xs text-gray-500 mt-1">
                           {formatNotificationTime(notification.date)}
@@ -175,10 +170,7 @@ const Header = () => {
         </Link>
 
         <h1 className="text-2xl font-bold text-center flex-1">
-          <Link
-            to="/profile"
-            className="flex items-center justify-center flex-1"
-          >
+          <Link to="/profile" className="flex items-center justify-center flex-1">
             VOAT
           </Link>
         </h1>
@@ -217,9 +209,7 @@ const Header = () => {
                       }`}
                       onClick={() => markAsRead(notification.id)}
                     >
-                      <p className="text-sm text-gray-800">
-                        {notification.text}
-                      </p>
+                      <p className="text-sm text-gray-800">{notification.text}</p>
                       {notification.date && (
                         <p className="text-xs text-gray-500 mt-1">
                           {formatNotificationTime(notification.date)}

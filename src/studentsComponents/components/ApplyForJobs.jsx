@@ -177,10 +177,9 @@ function ApplyForJobs() {
   // Render job listing view
   <ViewJob/> 
   return (
-
     <div className="flex">
       <Header />
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-25 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
         <div className="flex flex-col h-screen">
           {/* Search header */}
           <div className="bg-white p-4 shadow-sm border-b border-gray-200">
@@ -194,36 +193,34 @@ function ApplyForJobs() {
                   size={20}
                 />
                 <input
-  type="text"
-  value={searchRole}
-  onChange={(e) => setSearchRole(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission / page refresh
-      handleSearch();
-    }
-  }}
-  className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-  placeholder="Job title, keywords, or company"
-  style={{ paddingLeft: "2.5rem" }}
-/>
+                  type="text"
+                  value={searchRole}
+                  onChange={(e) => setSearchRole(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevent form submission / page refresh
+                      handleSearch();
+                    }
+                  }}
+                  className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Job title, keywords, or company"
+                  style={{ paddingLeft: "2.5rem" }}
+                />
               </div>
               <div className="flex-1 relative">
-               <input
-  type="text"
-  value={searchExperience}
-  onChange={(e) => setSearchExperience(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Stop form from submitting
-      handleSearch();
-      
-    }
-  }}
-  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-  placeholder="Experience level"
-/>
-
+                <input
+                  type="text"
+                  value={searchExperience}
+                  onChange={(e) => setSearchExperience(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Stop form from submitting
+                      handleSearch();
+                    }
+                  }}
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Experience level"
+                />
               </div>
               <div className="flex-1 relative">
                 <MapPin
@@ -238,20 +235,18 @@ function ApplyForJobs() {
                   placeholder="Location"
                   style={{ paddingLeft: "2.5rem" }}
                   onKeyDown={(e) => {
-  if (e.key === 'Enter') e.preventDefault();
-handleSearch();
-}}
+                    if (e.key === 'Enter') e.preventDefault();
+                    handleSearch();
+                  }}
                 />
               </div>
-                
-            <button
-  type="button"
-  onSubmit={(e) => e.preventDefault()}
-  // onClick={handleSearch} // your custom search function
-  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors"
->
-  Search jobs
-</button>
+              <button
+                type="button"
+                onSubmit={(e) => e.preventDefault()}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors"
+              >
+                Search jobs
+              </button>
             </form>
           </div>
 
@@ -482,50 +477,17 @@ handleSearch();
                                 New
                               </span>
                             )}
-                            
-                            {/* <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleSaveJob(job.id);
-                              }}
-                              className={`p-2 rounded-full ${
-                                savedJobs.includes(job.id)
-                                  ? "text-blue-600 bg-blue-50"
-                                  : "text-gray-400 hover:text-blue-600"
-                              }`}
-                              aria-label={
-                                savedJobs.includes(job.id)
-                                  ? "Unsave job"
-                                  : "Save job"
-                              }
-                            >
-                              <Bookmark
-                                size={18}
-                                fill={
-                                  savedJobs.includes(job.id)
-                                    ? "currentColor"
-                                    : "none"
-                                }
-                              />
-                            </button> */}
-                          
                           </div>
-      <button
-          onClick={() => navigate(`/job/${job._id}`)}
-          className="bg-blue-600 text-white text-xs sm:text-sm px-4 py-1.5 rounded-b-lg hover:bg-blue-700 transition transform translate-y-30"
-        >
-          View Job
-        </button>
+                          <button
+                            onClick={() => navigate(`/job/${job._id}`)}
+                            className="bg-blue-600 text-white text-xs sm:text-sm px-4 py-1.5 rounded-b-lg hover:bg-blue-700 transition transform translate-y-30"
+                          >
+                            View Job
+                          </button>
                         </div>
-                 
                       </Link>
-                      
-                      
-                    
                     ))}
                   </div>
-                     
-                  
 
                   {/* Pagination */}
                   {totalPages > 1 && (
@@ -569,17 +531,14 @@ handleSearch();
                       >
                         Next
                       </button>
-                      
                     </div>
                   )}
                 </>
               )}
-              
             </main>
           </div>
         </div>
       </div>
-      
     </div>
   );
 }
