@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Eye, EyeOff } from "lucide-react";
+import { Mail, Eye, EyeOff, Home, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function OTPLogin() {
@@ -407,19 +407,19 @@ export default function OTPLogin() {
           </form>
 
     <div className="mt-4 flex justify-between">
-  <span
-    onClick={() => navigate('/')}
-    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
-  >
-    Go To Home
-  </span>
-  <span
-    onClick={() => navigate('/register')}
-    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all  duration-200 hover:underline hover:text-blue-700"
-  >
-    Go to Register now
-  </span>
-</div>
+      <span
+        onClick={() => navigate('/')}
+        className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+      >
+        <Home size={16} /> Go To Home
+      </span>
+      <span
+        onClick={() => navigate('/register')}
+        className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+      >
+        <UserPlus size={16} /> Go to Register now
+      </span>
+    </div>
 
            
         </motion.div>

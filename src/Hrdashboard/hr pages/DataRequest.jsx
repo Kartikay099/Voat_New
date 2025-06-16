@@ -4,11 +4,12 @@ import { ArrowRight, Calendar, Download, FileSpreadsheet, FileText, Filter } fro
 const DataRequest = () => {
  
   return (
-    <div className="card">
-      <h1 className="text-2xl font-bold mb-6">Data Request</h1>
-    
-      </div>
+    <div className="p-6">
+    <h1 className="text-2xl font-bold mb-4">Data Request</h1>
 
+
+
+  </div>
   );
 };
 

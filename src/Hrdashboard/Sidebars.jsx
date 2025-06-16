@@ -17,13 +17,15 @@ const SubMenuButton = ({ item, isExpanded, toggleExpand, setMobileOpen }) => {
         <NavLink
           to={item.path}
           className={({ isActive }) =>
-            `block py-2 pl-6 pr-2 flex-1 flex items-center transition-colors ${
-              isActive ? 'text-[#0F52BA] font-medium' : 'text-gray-700 hover:text-[#0F52BA]'
+            `block py-2 pl-6 pr-2 flex-1 flex items-center transition-all duration-200 ease-in-out hover:scale-105 ${
+              isActive 
+                ? 'text-[#0F52BA] font-medium bg-blue-100 rounded-lg shadow-md' 
+                : 'text-gray-700 hover:text-[#0F52BA] hover:bg-blue-100 rounded-lg hover:shadow-md'
             }`
           }
           onClick={() => setMobileOpen(false)}
         >
-          <ArrowRight className="w-4 h-4 text-[#F59E0B] mr-2" />
+          <ArrowRight className="w-4 h-4 text-[#0F52BA] mr-2" />
           {item.label}
         </NavLink>
 
@@ -33,31 +35,33 @@ const SubMenuButton = ({ item, isExpanded, toggleExpand, setMobileOpen }) => {
               e.stopPropagation();
               toggleExpand(item.path);
             }}
-            className="p-1 mr-2 rounded-full hover:bg-blue-100 transition"
+            className="p-1 mr-2 rounded-full hover:bg-blue-200 transition-all duration-200 ease-in-out hover:scale-110"
           >
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4 text-gray-600" />
+              <ChevronDown className="w-4 h-4 text-[#0F52BA]" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-gray-600" />
+              <ChevronRight className="w-4 h-4 text-[#0F52BA]" />
             )}
           </button>
         )}
       </div>
 
       {hasChildren && isExpanded && (
-        <div className="ml-6 pl-2 border-l border-gray-300 space-y-1">
+        <div className="ml-6 pl-2 border-l border-blue-200 space-y-1">
           {item.children.map((child) => (
             <NavLink
               key={child.path}
               to={child.path}
               className={({ isActive }) =>
-                `block py-1 pl-6 flex items-center transition-colors ${
-                  isActive ? 'text-[#0F52BA] font-medium' : 'text-gray-600 hover:text-[#0F52BA]'
+                `block py-1 pl-6 flex items-center transition-all duration-200 ease-in-out hover:scale-105 ${
+                  isActive 
+                    ? 'text-[#0F52BA] font-medium bg-blue-100 rounded-lg shadow-md' 
+                    : 'text-gray-600 hover:text-[#0F52BA] hover:bg-blue-100 rounded-lg hover:shadow-md'
                 }`
               }
               onClick={() => setMobileOpen(false)}
             >
-              <ArrowRight className="w-3 h-3 text-[#F59E0B] mr-2" />
+              <ArrowRight className="w-3 h-3 text-[#0F52BA] mr-2" />
               {child.label}
             </NavLink>
           ))}
@@ -68,7 +72,7 @@ const SubMenuButton = ({ item, isExpanded, toggleExpand, setMobileOpen }) => {
 };
 
 const UserAvatar = () => (
-  <div className="p-6 flex flex-col items-center border-b border-gray-200">
+  <div className="p-6 flex flex-col items-center">
     <div className="relative mb-4">
       <div className="w-32 h-32 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden border-4 border-blue-100">
         <User size={64} className="text-[#0F52BA]" />
@@ -99,11 +103,11 @@ const MenuSection = ({ title, icon, basePath, subItems, isExpanded, toggleExpand
 
   return (
     <div className="space-y-1">
-      <div className={`w-full rounded-lg overflow-hidden ${isActiveRoute ? 'bg-[#0F52BA]' : 'bg-gray-100 hover:bg-gray-200'}`}>
-        <div className="w-full flex items-center justify-between py-3 px-4 transition-colors">
+      <div className={`w-full rounded-lg overflow-hidden transition-all duration-200 ease-in-out hover:scale-105 ${isActiveRoute ? 'bg-[#0F52BA] shadow-md' : 'bg-blue-50 hover:bg-blue-100 hover:shadow-md'}`}>
+        <div className="w-full flex items-center justify-between py-3 px-4 transition-all duration-200 ease-in-out">
           <NavLink
             to={basePath}
-            className={`flex-1 flex items-center gap-2 ${isActiveRoute ? 'text-white' : 'text-gray-700'}`}
+            className={`flex-1 flex items-center gap-2 transition-all duration-200 ease-in-out ${isActiveRoute ? 'text-white' : 'text-[#0F52BA] hover:text-[#0F52BA]'}`}
             onClick={() => setMobileOpen(false)}
           >
             {icon}
@@ -114,12 +118,12 @@ const MenuSection = ({ title, icon, basePath, subItems, isExpanded, toggleExpand
               e.stopPropagation();
               toggleExpand();
             }}
-            className="p-1 rounded-full hover:bg-blue-700 hover:bg-opacity-30"
+            className="p-1 rounded-full hover:bg-blue-200 transition-all duration-200 ease-in-out hover:scale-110"
           >
             {isExpanded ? (
-              <ChevronDown className="w-5 h-5 text-white" />
+              <ChevronDown className="w-5 h-5 text-[#0F52BA]" />
             ) : (
-              <ChevronRight className="w-5 h-5 text-white" />
+              <ChevronRight className="w-5 h-5 text-[#0F52BA]" />
             )}
           </button>
         </div>
@@ -167,7 +171,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const quickHireItems = [
     { path: '/hire/data-request', label: 'Data Request' },
     { path: '/hire/get-profile', label: 'Get Profile / Hire HR' },
-    { path: '/hire/hiring', label: 'Hiring' },
+    // { path: '/hire/hiring', label: 'Hiring' },
   ];
 
   return (
@@ -189,8 +193,10 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           <NavLink
             to="/hire/hrprofile"
             className={({ isActive }) =>
-              `w-full flex items-center justify-between py-3 px-4 rounded-lg transition-colors ${
-                isActive ? 'bg-[#0F52BA] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              `w-full flex items-center justify-between py-3 px-4 rounded-lg transition-all duration-200 ease-in-out mt-4 hover:scale-105 ${
+                isActive 
+                  ? 'bg-[#0F52BA] text-white shadow-md' 
+                  : 'bg-blue-50 text-[#0F52BA] hover:bg-blue-100 hover:shadow-md'
               }`
             }
             onClick={() => setMobileOpen(false)}
@@ -204,8 +210,8 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           <NavLink
             to="/hire/schedule"
             className={({ isActive }) =>
-              `w-full flex items-center justify-between py-3 px-4 rounded-lg transition-colors ${
-                isActive ? 'bg-[#0F52BA] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              `w-full flex items-center justify-between py-3 px-4 rounded-lg transition-all duration-200 ease-in-out hover:scale-105 ${
+                isActive ? 'bg-[#0F52BA] text-white shadow-md' : 'bg-blue-50 text-[#0F52BA] hover:bg-blue-100 hover:shadow-md'
               }`
             }
             onClick={() => setMobileOpen(false)}
@@ -219,7 +225,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           <MenuSection
             title="HIRING"
             icon={<User size={18} />}
-            basePath="/hire/post-job"
+            basePath="/hire/hiring"
             subItems={hiringItems}
             isExpanded={!!expandedSections['HIRING']}
             toggleExpand={() => toggleSection('HIRING')}

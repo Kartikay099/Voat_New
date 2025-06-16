@@ -27,21 +27,29 @@ const DesktopSidebarContent = () => {
         </p>
       </div>
 
-      <nav className="flex-1 overflow-y-auto pb-6 px-4 space-y-2">
+      <nav className="flex-1 overflow-y-auto pb-6 px-4">
         {navItems.map((item, index) => (
-          <Link
-            key={index}
-            to={item.path}
-            onClick={() => setCurrentPath(item.path)}
-            className={`w-full flex items-center py-3 px-4 rounded-lg text-left hover:bg-[#1565C0] transition-colors flex items-center justify-start gap-2 ${
-              currentPath === item.path
-                ? "bg-[#0F52BA] text-white"
-                : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            {item.icon}
-            {item.label}
-          </Link>
+          <div key={index} className="mb-2">
+            <Link to={item.path}>
+              <div
+                onClick={() => {
+                  setCurrentPath(item.path);
+                }}
+                className={`w-full flex items-center justify-between py-3 px-4 rounded-lg transition-all duration-200 ease-in-out hover:scale-105 ${
+                  currentPath === item.path 
+                    ? 'bg-[#0F52BA] text-white shadow-md' 
+                    : 'bg-blue-50 text-[#0F52BA] hover:bg-blue-100 hover:shadow-md'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={currentPath === item.path ? 'text-white' : 'text-[#0F52BA]'}>
+                    {item.icon}
+                  </div>
+                  <span className="font-medium">{item.label}</span>
+                </div>
+              </div>
+            </Link>
+          </div>
         ))}
       </nav>
 

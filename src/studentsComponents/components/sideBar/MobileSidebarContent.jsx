@@ -27,22 +27,30 @@ const MobileSidebarContent = ({ setSidebarOpen }) => {
         </p>
       </div>
 
-      <nav className="flex-1 overflow-y-auto pb-1 px-1 space-y-1">
+      <nav className="flex-1 overflow-y-auto pb-6 px-4">
         {navItems.map((item, index) => (
-          <Link to={item.path} key={index}>
-            <div
-              onClick={() => {
-                setCurrentPath(item.path);
-                setSidebarOpen(false);
-              }}
-              className={`flex items-center p-3 rounded-lg hover:bg-[#1565C0] hover:text-white transition-all ${
-                currentPath === item.path ? "bg-[#0F52BA] text-white" : "text-gray-700"
-              }`}
-            >
-              {item.icon}
-              <span className="ml-3">{item.label}</span>
-            </div>
-          </Link>
+          <div key={index} className="mb-2">
+            <Link to={item.path}>
+              <div
+                onClick={() => {
+                  setCurrentPath(item.path);
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center justify-between py-3 px-4 rounded-lg transition-all duration-200 ease-in-out hover:scale-105 ${
+                  currentPath === item.path 
+                    ? 'bg-[#0F52BA] text-white shadow-md' 
+                    : 'bg-blue-50 text-[#0F52BA] hover:bg-blue-100 hover:shadow-md'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={currentPath === item.path ? 'text-white' : 'text-[#0F52BA]'}>
+                    {item.icon}
+                  </div>
+                  <span className="font-medium">{item.label}</span>
+                </div>
+              </div>
+            </Link>
+          </div>
         ))}
       </nav>
     </>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Home, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -331,21 +331,20 @@ export default function Register() {
                   Get OTP
                 </motion.button>
 
-                 <div className="mt-4 flex justify-between">
-  <span
-    onClick={() => navigate('/')}
-    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
-  >
-    Go To Home
-  </span>
-  <span
-    onClick={() => navigate('/login')}
-    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700"
-  >
-    Go to Login Now
-  </span>
-
-</div>
+                <div className="mt-4 flex justify-between">
+                  <span
+                    onClick={() => navigate('/')}
+                    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+                  >
+                    <Home size={16} /> Go To Home
+                  </span>
+                  <span
+                    onClick={() => navigate('/login')}
+                    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+                  >
+                    <LogIn size={16} /> Go to Login Now
+                  </span>
+                </div>
               </motion.form>
             ) : (
               <motion.div

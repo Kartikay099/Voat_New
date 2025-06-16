@@ -152,10 +152,10 @@ export default function Profile() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-4 bg-[#D6E6F2] min-h-screen">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-4 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Section */}
-        <div className="rounded-xl p-6 shadow-lg bg-white">
+        <div className="rounded-xl p-6 shadow-md bg-white">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Profile Details</h2>
             {!isEditing && (
@@ -255,7 +255,7 @@ export default function Profile() {
         </div>
 
         {/* HR Details */}
-        <div className="rounded-xl p-6 shadow-lg bg-white">
+        <div className="rounded-xl p-6 shadow-md bg-white">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">HR Details</h2>
             {!isEditing && (
@@ -380,12 +380,16 @@ export default function Profile() {
                 <Mail className="shrink-0 text-gray-500" />
                 <span>Email: {profileDetails.hrDetails.contactEmail}</span>
               </div>
+              {/* <div className="flex items-center gap-2">
+                <Linkedin className="shrink-0 text-gray-500" />
+                <span>LinkedIn: {profileDetails.hrDetails.linkedin}</span>
+              </div> */}
             </div>
           )}
         </div>
 
         {/* Interview Schedule Section */}
-        <div className="lg:col-span-2 rounded-xl p-6 shadow-lg bg-white">
+        <div className="lg:col-span-2 rounded-xl p-6 shadow-md bg-white">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Interview Schedule</h2>
             <div className="flex gap-2">
@@ -510,7 +514,7 @@ export default function Profile() {
         </div>
 
         {/* Other Details */}
-        <div className="lg:col-span-2 rounded-xl p-6 shadow-lg bg-white">
+        <div className="lg:col-span-2 rounded-xl p-6 shadow-md bg-white">
           <h2 className="text-2xl font-bold mb-6">Other Details</h2>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-4">
@@ -532,7 +536,7 @@ export default function Profile() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <a 
+              {/* <a 
                 href="https://linkedin.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -540,7 +544,7 @@ export default function Profile() {
                 aria-label="LinkedIn profile"
               >
                 <Linkedin size={20} className="text-white" />
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
