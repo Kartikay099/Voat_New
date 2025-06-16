@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { User, Briefcase, Mail, Phone, MapPin, Calendar, Moon, Sun, Linkedin, Save, Edit, X } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { 
+  User, Briefcase, Mail, Phone, MapPin, Calendar, 
+  Linkedin, ChevronDown, Edit, Save, X, Pencil, Trash2, Clock 
+} from "lucide-react";
 
 export default function Profile() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editSection, setEditSection] = useState(null); // 'profile', 'hr', 'tasks'
-  
+  const [editSection, setEditSection] = useState(null);
+
   // Initial profile data with Indian details
   const initialProfileDetails = {
     name: "Rahul Sharma",
@@ -16,14 +19,6 @@ export default function Profile() {
     receivedJobs: 3,
     pendingApplications: 15,
     paymentDue: 12500,
-    upcomingTasks: [
-      "Interview with Infosys on June 15",
-      "Follow-up with TCS HR",
-      "Complete HackerRank assessment",
-      "Submit documents to Wipro",
-      "Attend Tech Mahindra networking event",
-      "Review offer from Accenture"
-    ],
     hrDetails: {
       company: "TechSolutions India Pvt. Ltd.",
       role: "Senior Software Engineer",
@@ -38,7 +33,40 @@ export default function Profile() {
   const [profileDetails, setProfileDetails] = useState(initialProfileDetails);
   const [formData, setFormData] = useState({ ...initialProfileDetails });
 
-  // Handle input changes
+  // Tasks state with interview slots
+  const [tasks, setTasks] = useState([
+    { 
+      id: 1,
+      date: new Date(2025, 3, 3),
+      title: "Interview with Infosys",
+      slot: "10:00 AM - 11:00 AM",
+      Candidate: "Mr. Rajesh Kumar (Tech Lead)"
+    },
+    { 
+      id: 2,
+      date: new Date(2025, 3, 7),
+      title: "Follow-up with TCS HR",
+      slot: "2:30 PM - 3:00 PM",
+      Candidate: "Ms. Priya Sharma (HR Manager)"
+    },
+    { 
+      id: 3,
+      date: new Date(2025, 3, 12),
+      title: "Technical Round with Amazon",
+      slot: "4:00 PM - 5:30 PM",
+      Candidate: "Mr. Amit Patel (Senior Engineer)"
+    }
+  ]);
+
+  const [editingTask, setEditingTask] = useState(null);
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    slot: '',
+    Candidate: '',
+    date: ''
+  });
+
+  // Handle input changes for profile
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
@@ -58,65 +86,83 @@ export default function Profile() {
     }
   };
 
-  // Handle task changes
-  const handleTaskChange = (index, value) => {
-    const updatedTasks = [...formData.upcomingTasks];
-    updatedTasks[index] = value;
-    setFormData(prev => ({
-      ...prev,
-      upcomingTasks: updatedTasks
-    }));
-  };
-
-  // Add new task
-  const addNewTask = () => {
-    setFormData(prev => ({
-      ...prev,
-      upcomingTasks: [...prev.upcomingTasks, "New task - click to edit"]
-    }));
-  };
-
-  // Remove task
-  const removeTask = (index) => {
-    const updatedTasks = formData.upcomingTasks.filter((_, i) => i !== index);
-    setFormData(prev => ({
-      ...prev,
-      upcomingTasks: updatedTasks
-    }));
-  };
-
-  // Save changes
+  // Save profile changes
   const handleSave = () => {
     setProfileDetails(formData);
     setIsEditing(false);
     setEditSection(null);
   };
 
-  // Cancel editing
+  // Cancel profile editing
   const handleCancel = () => {
     setFormData({ ...profileDetails });
     setIsEditing(false);
     setEditSection(null);
   };
 
-  // Start editing a section
+  // Start editing a profile section
   const startEditing = (section) => {
     setFormData({ ...profileDetails });
     setEditSection(section);
     setIsEditing(true);
   };
 
+  // Task functions
+  const handleTaskEdit = (task) => {
+    setEditingTask(task.id);
+    setTaskForm({
+      title: task.title,
+      slot: task.slot,
+      Candidate: task.Candidate,
+      date: task.date.toISOString().split('T')[0]
+    });
+  };
+
+  const handleTaskInputChange = (e) => {
+    const { name, value } = e.target;
+    setTaskForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleTaskSave = () => {
+    setTasks(tasks.map(task => 
+      task.id === editingTask 
+        ? { 
+            ...task, 
+            title: taskForm.title,
+            slot: taskForm.slot,
+            Candidate: taskForm.Candidate,
+            date: new Date(taskForm.date)
+          } 
+        : task
+    ));
+    setEditingTask(null);
+    setTaskForm({ title: '', slot: '', Candidate: '', date: '' });
+  };
+
+  const handleTaskCancel = () => {
+    setEditingTask(null);
+    setTaskForm({ title: '', slot: '', Candidate: '', date: '' });
+  };
+
+  const handleTaskDelete = (id) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
   return (
-    <div className={`container mx-auto p-4 md:p-4 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-[#D6E6F2]'} min-h-screen transition-colors`}>
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-4 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile Section */}
-        <div className={`rounded-xl p-6 shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <div className="rounded-xl p-6 shadow-md bg-white">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Profile Details</h2>
             {!isEditing && (
               <button 
                 onClick={() => startEditing('profile')}
-                className={`flex items-center gap-1 px-3 py-1 rounded-md ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0F52BA] hover:bg-[#0a3a8a]'} text-white`}
+                className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#0F52BA] hover:bg-[#0a3a8a] text-white"
+                aria-label="Edit profile details"
               >
                 <Edit size={16} /> Edit
               </button>
@@ -132,7 +178,8 @@ export default function Profile() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Name"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -142,7 +189,8 @@ export default function Profile() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Email"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -152,7 +200,8 @@ export default function Profile() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Phone number"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -162,19 +211,22 @@ export default function Profile() {
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Location"
                 />
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button 
                   onClick={handleCancel}
-                  className={`flex items-center gap-1 px-4 py-2 border rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                  className="flex items-center gap-1 px-4 py-2 border rounded hover:bg-gray-100"
+                  aria-label="Cancel editing"
                 >
                   <X size={18} /> Cancel
                 </button>
                 <button 
                   onClick={handleSave}
-                  className={`flex items-center gap-1 px-4 py-2 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0F52BA] hover:bg-[#0a3a8a]'} text-white rounded`}
+                  className="flex items-center gap-1 px-4 py-2 bg-[#0F52BA] hover:bg-[#0a3a8a] text-white rounded"
+                  aria-label="Save changes"
                 >
                   <Save size={18} /> Update
                 </button>
@@ -203,13 +255,14 @@ export default function Profile() {
         </div>
 
         {/* HR Details */}
-        <div className={`rounded-xl p-6 shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <div className="rounded-xl p-6 shadow-md bg-white">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">HR Details</h2>
             {!isEditing && (
               <button 
                 onClick={() => startEditing('hr')}
-                className={`flex items-center gap-1 px-3 py-1 rounded-md ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0F52BA] hover:bg-[#0a3a8a]'} text-white`}
+                className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#0F52BA] hover:bg-[#0a3a8a] text-white"
+                aria-label="Edit HR details"
               >
                 <Edit size={16} /> Edit
               </button>
@@ -225,7 +278,8 @@ export default function Profile() {
                   name="hrDetails.company"
                   value={formData.hrDetails.company}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Company name"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -235,7 +289,8 @@ export default function Profile() {
                   name="hrDetails.role"
                   value={formData.hrDetails.role}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Job role"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -245,7 +300,8 @@ export default function Profile() {
                   name="hrDetails.experience"
                   value={formData.hrDetails.experience}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Years of experience"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -255,7 +311,8 @@ export default function Profile() {
                   name="hrDetails.basicDetails"
                   value={formData.hrDetails.basicDetails}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Position type"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -265,7 +322,8 @@ export default function Profile() {
                   name="hrDetails.contactPerson"
                   value={formData.hrDetails.contactPerson}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Contact person"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -275,19 +333,22 @@ export default function Profile() {
                   name="hrDetails.contactEmail"
                   value={formData.hrDetails.contactEmail}
                   onChange={handleInputChange}
-                  className={`border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
+                  className="border rounded p-2 bg-white"
+                  aria-label="Contact email"
                 />
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button 
                   onClick={handleCancel}
-                  className={`flex items-center gap-1 px-4 py-2 border rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                  className="flex items-center gap-1 px-4 py-2 border rounded hover:bg-gray-100"
+                  aria-label="Cancel editing"
                 >
                   <X size={18} /> Cancel
                 </button>
                 <button 
                   onClick={handleSave}
-                  className={`flex items-center gap-1 px-4 py-2 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0F52BA] hover:bg-[#0a3a8a]'} text-white rounded`}
+                  className="flex items-center gap-1 px-4 py-2 bg-[#0F52BA] hover:bg-[#0a3a8a] text-white rounded"
+                  aria-label="Save changes"
                 >
                   <Save size={18} /> Update
                 </button>
@@ -319,80 +380,141 @@ export default function Profile() {
                 <Mail className="shrink-0 text-gray-500" />
                 <span>Email: {profileDetails.hrDetails.contactEmail}</span>
               </div>
+              {/* <div className="flex items-center gap-2">
+                <Linkedin className="shrink-0 text-gray-500" />
+                <span>LinkedIn: {profileDetails.hrDetails.linkedin}</span>
+              </div> */}
             </div>
           )}
         </div>
 
-        {/* Tasks Section */}
-        <div className={`lg:col-span-2 rounded-xl p-6 shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        {/* Interview Schedule Section */}
+        <div className="lg:col-span-2 rounded-xl p-6 shadow-md bg-white">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Upcoming Tasks</h2>
-            {!isEditing && (
-              <button 
-                onClick={() => startEditing('tasks')}
-                className={`flex items-center gap-1 px-3 py-1 rounded-md ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0F52BA] hover:bg-[#0a3a8a]'} text-white`}
+            <h2 className="text-2xl font-bold">Interview Schedule</h2>
+            <div className="flex gap-2">
+              <Link
+                to="/schedule"
+                className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#0F52BA] hover:bg-[#0a3a8a] text-white text-sm"
+                aria-label="View all interviews"
               >
-                <Edit size={16} /> Edit
-              </button>
-            )}
+                View All
+              </Link>
+            </div>
           </div>
 
-          {isEditing && editSection === 'tasks' ? (
-            <div>
-              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto pr-2">
-                {formData.upcomingTasks.map((task, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={task}
-                      onChange={(e) => handleTaskChange(index, e.target.value)}
-                      className={`flex-1 border rounded p-2 ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'}`}
-                    />
-                    <button 
-                      onClick={() => removeTask(index)}
-                      className="p-2 text-red-500 hover:text-red-700"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between">
-                <button 
-                  onClick={addNewTask}
-                  className={`px-3 py-1 rounded ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
-                >
-                  + Add Task
-                </button>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={handleCancel}
-                    className={`flex items-center gap-1 px-4 py-2 border rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                  >
-                    <X size={18} /> Cancel
-                  </button>
-                  <button 
-                    onClick={handleSave}
-                    className={`flex items-center gap-1 px-4 py-2 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0F52BA] hover:bg-[#0a3a8a]'} text-white rounded`}
-                  >
-                    <Save size={18} /> Update
-                  </button>
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {tasks.map((task) => {
+              const formattedDate = `${task.date.toLocaleString('default', { month: 'long' })} ${task.date.getDate()}, ${task.date.getFullYear()}`;
+              
+              return (
+                <div key={task.id} className="p-3 border rounded-lg hover:bg-gray-50 transition-colors relative">
+                  {editingTask === task.id ? (
+                    <div className="space-y-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">Interview Title</label>
+                        <input
+                          type="text"
+                          name="title"
+                          value={taskForm.title}
+                          onChange={handleTaskInputChange}
+                          className="border rounded p-2 bg-white"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">Time Slot</label>
+                        <input
+                          type="text"
+                          name="slot"
+                          value={taskForm.slot}
+                          onChange={handleTaskInputChange}
+                          className="border rounded p-2 bg-white"
+                          placeholder="e.g. 10:00 AM - 11:00 AM"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">Candidate</label>
+                        <input
+                          type="text"
+                          name="Candidate"
+                          // value={taskForm.interviewer}
+                          onChange={handleTaskInputChange}
+                          className="border rounded p-2 bg-white"
+                          placeholder="Candidate name and designation"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">Date</label>
+                        <input
+                          type="date"
+                          name="date"
+                          value={taskForm.date}
+                          onChange={handleTaskInputChange}
+                          className="border rounded p-2 bg-white"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2 mt-2">
+                        <button 
+                          onClick={handleTaskCancel}
+                          className="px-3 py-1 border rounded hover:bg-gray-100 text-sm"
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          onClick={handleTaskSave}
+                          className="px-3 py-1 bg-[#0F52BA] hover:bg-[#0a3a8a] text-white rounded text-sm"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-medium text-gray-800">{task.title}</h3>
+                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                            <Calendar className="mr-1" size={14} />
+                            <span>{formattedDate}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleTaskEdit(task)}
+                            className="p-1 text-gray-500 hover:text-blue-600"
+                            aria-label="Edit interview"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button 
+                            onClick={() => handleTaskDelete(task.id)}
+                            className="p-1 text-gray-500 hover:text-red-600"
+                            aria-label="Delete interview"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Clock className="mr-2" size={14} />
+                          <span className="font-medium">Time Slot:</span> {task.slot}
+                        </div>
+                        <div className="flex items-start text-sm text-gray-600">
+                          <User className="mr-2 mt-0.5" size={14} />
+                          <span className="font-medium">Candidate:</span> {task.Candidate}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-            </div>
-          ) : (
-            <div className="max-h-60 overflow-y-auto">
-              <ul className={`list-disc list-inside space-y-2 ml-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {profileDetails.upcomingTasks.map((task, index) => (
-                  <li key={index} className="py-1">{task}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
 
         {/* Other Details */}
-        <div className={`lg:col-span-2 rounded-xl p-6 shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <div className="lg:col-span-2 rounded-xl p-6 shadow-md bg-white">
           <h2 className="text-2xl font-bold mb-6">Other Details</h2>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-4">
@@ -414,20 +536,15 @@ export default function Profile() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <a 
+              {/* <a 
                 href="https://linkedin.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className={`p-2 rounded-full transition-colors ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0F52BA] hover:bg-[#0a3a8a]'}`}
+                className="p-2 rounded-full transition-colors bg-[#0F52BA] hover:bg-[#0a3a8a]"
+                aria-label="LinkedIn profile"
               >
                 <Linkedin size={20} className="text-white" />
-              </a>
-              <button 
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-full transition-colors ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-600 hover:bg-gray-700'}`}
-              >
-                {isDarkMode ? <Sun size={20} className="text-yellow-300" /> : <Moon size={20} className="text-gray-200" />}
-              </button>
+              </a> */}
             </div>
           </div>
         </div>

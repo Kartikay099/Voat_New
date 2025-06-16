@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Eye, EyeOff } from "lucide-react";
+import { Mail, Eye, EyeOff, Home, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "../../utilits/apiUrl";
@@ -526,7 +526,7 @@ export default function OTPLogin() {
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-blue-600 hover:underline text-sm font-medium"
+                    className="text-blue-600 hover:underline text-sm font-semibold"
                   >
                     Forgot Password?
                   </button>
@@ -546,6 +546,24 @@ export default function OTPLogin() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Enter OTP
                   </label>
+                   {/* Back Button Added Here */}
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep(1);
+                        setOtp(Array(6).fill(""));
+                        setErrorMsg("");
+                        setAttemptsLeftOTP(3);
+                        setFreezeTimerOTP(0);
+                      }}
+                      className="text-gray-600 hover:underline text-sm"
+                    >
+                      &larr; Login with Password
+                    </button>
+                  </div>
+                  <label className="block text-sm font-medium text-bold text-gray-700 mb-2">Enter OTP</label>
+
                   <div className="flex justify-center gap-2 mb-3">
                     {otp.map((digit, index) => (
                       <motion.input
@@ -581,6 +599,22 @@ export default function OTPLogin() {
                         : "Resend OTP"}
                     </button>
                   </div>
+                   {/* Back Button Added Here
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep(1);
+                        setOtp(Array(6).fill(""));
+                        setErrorMsg("");
+                        setAttemptsLeftOTP(3);
+                        setFreezeTimerOTP(0);
+                      }}
+                      className="text-gray-600 hover:underline text-sm"
+                    >
+                      &larr; Back to Login
+                    </button>
+                  </div> */}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -627,6 +661,7 @@ export default function OTPLogin() {
                 </button>
               </div>
             ) : (
+              
               <button
                 type="submit"
                 disabled={freezeTimerOTP > 0 || loading}
@@ -643,8 +678,13 @@ export default function OTPLogin() {
                 ) : (
                   "Verify OTP"
                 )}
+                
               </button>
+              
             )}
+             
+             
+            
           </form>
           <div className="text-center mt-4">
             <span className="text-sm text-gray-600">Not registered?</span>{" "}
@@ -655,6 +695,20 @@ export default function OTPLogin() {
               Register now
             </a>
           </div>
+    <div className="mt-4 flex justify-between">
+      <span
+        onClick={() => navigate('/')}
+        className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+      >
+        <Home size={16} /> Go To Home
+      </span>
+      <span
+        onClick={() => navigate('/register')}
+        className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+      >
+        <UserPlus size={16} /> Go to Register now
+      </span>
+    </div>
         </motion.div>
       </motion.div>
     </div>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Loader2, Home, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -36,8 +38,32 @@ export default function Register() {
     if (otpExpiresIn > 0) {
       const interval = setInterval(() => {
         setOtpExpiresIn((prev) => prev - 1);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Attempts logic
+  const [attemptsLeft, setAttemptsLeft] = useState(3);
+  const [lockTimer, setLockTimer] = useState(0);
+
+  const inputRefs = useRef([]);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
+    }
+  }, [resendTimer]);
+
+  useEffect(() => {
+    if (lockTimer > 0) {
+      const interval = setInterval(() => {
+        setLockTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (lockTimer === 0 && attemptsLeft === 0) {
+      // Reset attempts after lock time ends
+      setAttemptsLeft(3);
     }
   }, [otpExpiresIn]);
 
@@ -48,7 +74,6 @@ export default function Register() {
       setOtpExpiresIn((prev) => Math.max(prev - 1, 0));
     }, 1000);
 
-    // ✅ Handle auto-reload condition separately
     if (attemptsLeft === 0 && lockTimer === 0 && isBlockTime == true) {
       window.location.reload(); // 🔁 Auto reloads the page
     }
@@ -56,6 +81,7 @@ export default function Register() {
     return () => clearInterval(interval);
   }, [attemptsLeft, lockTimer]);
   // ✅ include in deps
+  }, [lockTimer, attemptsLeft]);
 
   const validateName = (name) => /^[a-zA-Z\s]{3,50}$/.test(name.trim());
   const validateEmail = (email) =>
@@ -166,6 +192,41 @@ export default function Register() {
       setLockTimer(data?.blockDuration || 0);
       if (data.blockDuration) {
         setIsBlockTime(true);
+      toast.success(isResend ? "OTP resent!" : "OTP sent! Please check your email.");
+    } catch (error) {
+      toast.error("Failed to send OTP, please try again.");
+      return;
+    } finally {
+      setLoading(false);
+      setShowOtp(true);
+      setOtp(new Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+      setResendTimer(60);
+      // Reset attempts and lock on new OTP
+      setAttemptsLeft(3);
+      setLockTimer(0);
+    }
+  };
+
+  const handleOtpChange = (e, idx) => {
+    if (lockTimer > 0) return; // disable input if locked
+    const val = e.target.value.replace(/[^0-9]/g, "");
+    if (!val) return;
+    const newOtp = [...otp];
+    newOtp[idx] = val;
+    setOtp(newOtp);
+    if (idx < 5) inputRefs.current[idx + 1].focus();
+  };
+
+  const handleOtpKeyDown = (e, idx) => {
+    if (lockTimer > 0) return; // disable input if locked
+    if (e.key === "Backspace") {
+      if (otp[idx]) {
+        const newOtp = [...otp];
+        newOtp[idx] = "";
+        setOtp(newOtp);
+      } else if (idx > 0) {
+        inputRefs.current[idx - 1].focus();
       }
       //otp
       // setShowOtp(true);
@@ -180,7 +241,10 @@ export default function Register() {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (loading) return;
-
+    if (lockTimer > 0) {
+      toast.error(`Too many attempts. Please wait ${lockTimer}s.`);
+      return;
+    }
     if (otp.includes("")) {
       toast.error("Please enter complete OTP.");
       return;
@@ -275,6 +339,17 @@ export default function Register() {
 
       if (typeof res?.attemptsLeft === "number") {
         setAttemptsLeft(data.attemptsLeft ?? attemptsLeft);
+      // Wrong OTP case
+      setAttemptsLeft((prev) => prev - 1);
+      toast.error(
+        `Incorrect OTP. Attempts left: ${attemptsLeft - 1 > 0 ? attemptsLeft - 1 : 0}`
+      );
+      setOtp(new Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+
+      if (attemptsLeft - 1 <= 0) {
+        setLockTimer(60); // lock for 60 seconds
+        toast.error("Too many wrong attempts. Please wait 60 seconds.");
       }
     } finally {
       setLoading(false);
@@ -464,6 +539,23 @@ export default function Register() {
                 >
                   Go to Login Page
                 </p>
+                  Get OTP
+                </motion.button>
+
+                <div className="mt-4 flex justify-between">
+                  <span
+                    onClick={() => navigate('/')}
+                    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+                  >
+                    <Home size={16} /> Go To Home
+                  </span>
+                  <span
+                    onClick={() => navigate('/login')}
+                    className="text-blue-600 text-sm font-semibold cursor-pointer transition-all duration-200 hover:underline hover:text-blue-700 flex items-center gap-1"
+                  >
+                    <LogIn size={16} /> Go to Login Now
+                  </span>
+                </div>
               </motion.form>
             ) : (
               <motion.div
@@ -488,6 +580,7 @@ export default function Register() {
                       onChange={(e) => handleOtpChange(e, idx)}
                       onKeyDown={(e) => handleOtpKeyDown(e, idx)}
                       disabled={loading || lockTimer > 0 || otpExpiresIn === 0}
+                      disabled={loading || lockTimer > 0}
                       ref={(el) => (inputRefs.current[idx] = el)}
                       className={`w-10 h-12 text-center text-lg border rounded-md ${
                         lockTimer > 0
@@ -500,6 +593,15 @@ export default function Register() {
                 <motion.button
                   onClick={handleVerifyOtp}
                   disabled={loading || lockTimer > 0} // verifyBlockTimer, verifyAttemptsLeft,
+                {lockTimer > 0 && (
+                  <p className="mb-4 text-red-600 font-semibold">
+                    Too many wrong attempts. Please wait {lockTimer}s.
+                  </p>
+                )}
+
+                <motion.button
+                  onClick={handleVerifyOtp}
+                  disabled={loading || lockTimer > 0}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   className={`w-full font-semibold py-2 rounded-lg transition duration-300 flex items-center justify-center ${
@@ -543,12 +645,31 @@ export default function Register() {
                   )}
                   {otpExpiresIn > 0 && `(${otpExpiresIn}s)`}
                 </p>
+                  Verify OTP
+                </motion.button>
+
+                <p className="mt-4 text-gray-600">
+                  Didn't receive OTP?{" "}
+                  <button
+                    onClick={(e) => {
+                      if (resendTimer === 0 && !loading) handleGetOtp(e, true);
+                    }}
+                    disabled={resendTimer !== 0 || loading}
+                    className={`text-blue-600 underline cursor-pointer ${
+                      resendTimer !== 0 ? "cursor-not-allowed text-gray-400" : ""
+                    }`}
+                  >
+                    Resend OTP {resendTimer > 0 && `(${resendTimer}s)`}
+                  </button>
+                </p>
                 <p
                   onClick={() => {
                     setShowOtp(false);
                     setOtp(new Array(6).fill(""));
                     // setAttemptsLeft(3);
                     // setLockTimer(0);
+                    setAttemptsLeft(3);
+                    setLockTimer(0);
                   }}
                   className="mt-4 text-sm text-blue-600 hover:underline cursor-pointer"
                 >
