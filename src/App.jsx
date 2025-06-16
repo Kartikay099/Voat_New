@@ -1,3 +1,5 @@
+import { Routes, Route, useLocation } from "react-router-dom";
+// import Register from "./Landing/components/Register";
 import { Routes, Route, useLocation, Link } from "react-router-dom";
 import Register from "./Landing/components/Register";
 import Login from "./Landing/components/Login";
