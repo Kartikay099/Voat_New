@@ -187,7 +187,7 @@ const Header = ({ onMenuToggle }) => {
                 </div>
                 <div className="p-2 text-center border-t border-gray-200">
                   <Link
-                    to="/schedule"
+                    to="/hire/schedule"
                     onClick={() => setNotificationsOpen(false)}
                     className="text-sm text-[#0F52BA] hover:underline"
                   >
