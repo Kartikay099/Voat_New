@@ -47,11 +47,32 @@ export const UserJobProvider = ({ children }) => {
     const isAlreadyApplied = appliedJobs.some((job) => job.id === jobId);
 
     if (!isAlreadyApplied && jobToApply) {
-      setAppliedJobs((prev) => [...prev, jobToApply]);
+      // Add eligibility criteria and required skills based on job type
+      const jobRequirements = {
+        "Software / Web Developer Intern": {
+          eligibility: "Basic knowledge of HTML, CSS, JavaScript, and React. Currently pursuing or completed degree in Computer Science or related field.",
+          requiredSkills: "• HTML5 and CSS3 fundamentals\n• Basic JavaScript and React concepts\n• Understanding of responsive design\n• Version control (Git)\n• Basic problem-solving skills"
+        },
+        "Frontend Developer": {
+          eligibility: "2+ years of experience with React, JavaScript, and CSS. Strong understanding of modern frontend frameworks and responsive design.",
+          requiredSkills: "• Advanced React.js and JavaScript\n• CSS3 and modern styling solutions\n• State management (Redux/Context)\n• RESTful APIs integration\n• Performance optimization\n• Testing frameworks (Jest/React Testing Library)"
+        },
+        "Backend Engineer": {
+          eligibility: "3+ years of experience with Node.js, MongoDB, and Express. Strong understanding of RESTful APIs and database design.",
+          requiredSkills: "• Node.js and Express.js\n• MongoDB and database design\n• RESTful API development\n• Authentication and authorization\n• Microservices architecture\n• Cloud platforms (AWS/Azure)"
+        }
+      };
+
+      const jobWithRequirements = {
+        ...jobToApply,
+        eligibility: jobRequirements[jobToApply.title]?.eligibility || "Experience in relevant technologies and strong problem-solving skills.",
+        requiredSkills: jobRequirements[jobToApply.title]?.requiredSkills || "• Strong technical background\n• Problem-solving abilities\n• Team collaboration\n• Communication skills"
+      };
+
+      setAppliedJobs((prev) => [...prev, jobWithRequirements]);
       setSelectedJob(null);
     } else {
       console.warn("Job already applied or not found");
-      // You might want to show a toast notification here
     }
   };
 

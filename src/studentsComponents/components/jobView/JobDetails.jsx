@@ -25,8 +25,8 @@ const JobDetails = ({}) => {
   return (
     <div className="flex">
       <Header />
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-25 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
-        <div className="max-w-6xl mx-auto mb-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-24 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
+        <div className="max-w-6xl mx-auto mb-10 mt-4">
           <Link
             to="/apply-for-jobs"
             onClick={() => setSelectedJob(null)}

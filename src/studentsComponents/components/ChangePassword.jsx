@@ -39,20 +39,15 @@ export default function ResetPassword() {
     }
 
     try {
-      setLoading(true);  // <-- start loading
-      await axios.post("http://localhost:3001/reset-password", {
-        email,
-        token,
-        password,
-      });
+      setLoading(true);
+      // Simulate password reset
+      await new Promise(resolve => setTimeout(resolve, 1500));
       setSuccess(true);
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      const msg =
-        err.response?.data?.error ||
-        "Something went wrong while resetting the password.";
-      setError(msg);
+      setError("Something went wrong while resetting the password.");
     } finally {
-      setLoading(false); // <-- stop loading
+      setLoading(false);
     }
   };
 

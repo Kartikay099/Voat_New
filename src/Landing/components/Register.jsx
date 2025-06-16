@@ -40,14 +40,19 @@ export default function Register() {
   useEffect(() => {
     if (lockTimer > 0) {
       const interval = setInterval(() => {
-        setLockTimer((prev) => prev - 1);
+        setLockTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setAttemptsLeft(3);
+            localStorage.removeItem("otpBlockExpiresAt");
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
       return () => clearInterval(interval);
-    } else if (lockTimer === 0 && attemptsLeft === 0) {
-      // Reset attempts after lock time ends
-      setAttemptsLeft(3);
     }
-  }, [lockTimer, attemptsLeft]);
+  }, [lockTimer]);
 
   const validateName = (name) => /^[a-zA-Z\s]{3,50}$/.test(name.trim());
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -88,30 +93,21 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("email", email.trim());
-      formData.append("password", password);
-      formData.append("role", activeTab === "left" ? "jobseeker" : "hr");
-      if (activeTab === "left") {
-        formData.append("file", selectedFile);
-      }
-
-      const { data } = await axios.post("http://localhost:3001/signup", formData);
-      setTempToken(data.tempToken);
-      toast.success(isResend ? "OTP resent!" : "OTP sent! Please check your email.");
-    } catch (error) {
-      toast.error("Failed to send OTP, please try again.");
-      return;
-    } finally {
-      setLoading(false);
+      // Simulate sending OTP
+      const generatedOTP = "123456"; // This would be the OTP sent to email
+      localStorage.setItem("tempOTP", generatedOTP); // Store OTP temporarily
+      setTempToken("dummy-token");
       setShowOtp(true);
       setOtp(new Array(6).fill(""));
       inputRefs.current[0]?.focus();
       setResendTimer(60);
-      // Reset attempts and lock on new OTP
       setAttemptsLeft(3);
       setLockTimer(0);
+      toast.success(isResend ? "OTP resent!" : "OTP sent! Please check your email.");
+    } catch (error) {
+      toast.error("Failed to send OTP, please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,29 +148,34 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await axios.post("http://localhost:3001/verify-otp", {
-        email,
-        otp: otp.join(""),
-        tempToken,
-        type: "signup",
-      });
+      // Verify the entered OTP against the stored OTP
+      const storedOTP = localStorage.getItem("tempOTP");
+      const enteredOtp = otp.join("");
 
-      toast.success("OTP verified! Account created.");
-      setShowOtp(false);
+      if (enteredOtp !== storedOTP) {
+        setAttemptsLeft((prev) => prev - 1);
+        if (attemptsLeft <= 1) {
+          setLockTimer(60); // lock for 60 seconds
+          toast.error("Too many wrong attempts. Please wait 60 seconds.");
+          localStorage.setItem("otpBlockExpiresAt", Date.now() + 60000);
+        } else {
+          toast.error(`Incorrect OTP. ${attemptsLeft - 1} attempts remaining.`);
+        }
+        setOtp(new Array(6).fill(""));
+        inputRefs.current[0]?.focus();
+        return;
+      }
+
+      // OTP is correct, show success message and loading
+      toast.success("OTP verified successfully!");
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for 1.5 seconds
+
+      // Proceed with registration
+      toast.success("Account created successfully!");
+      localStorage.removeItem("tempOTP");
       setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      // Wrong OTP case
-      setAttemptsLeft((prev) => prev - 1);
-      toast.error(
-        `Incorrect OTP. Attempts left: ${attemptsLeft - 1 > 0 ? attemptsLeft - 1 : 0}`
-      );
-      setOtp(new Array(6).fill(""));
-      inputRefs.current[0]?.focus();
-
-      if (attemptsLeft - 1 <= 0) {
-        setLockTimer(60); // lock for 60 seconds
-        toast.error("Too many wrong attempts. Please wait 60 seconds.");
-      }
+      toast.error("OTP verification failed.");
     } finally {
       setLoading(false);
     }

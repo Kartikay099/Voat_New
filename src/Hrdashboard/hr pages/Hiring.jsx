@@ -190,12 +190,7 @@ export default function HRJobsDashboard() {
           
           {/* Quick Actions */}
           <div className="space-y-3">
-            <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
-              View All Applicants
-            </button>
-            <button className="w-full py-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg text-sm font-medium transition-colors">
-              Manage Reminders
-            </button>
+            {/* Removed View All Applicants and Manage Reminders buttons */}
           </div>
         </div>
       </div>

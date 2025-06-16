@@ -68,7 +68,7 @@ export default function JobBoard() {
 
       <div className="text-center mt-14">
         <button
-          onClick={() => navigate("/jobs")}
+          onClick={() => navigate("/apply-for-jobs")}
           className="px-6 py-3 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 hover:scale-105 transition-all duration-300"
         >
           Show More Jobs

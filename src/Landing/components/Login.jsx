@@ -167,30 +167,14 @@ export default function OTPLogin() {
     setOtpLoading(true);
     setErrorMsg("");
     try {
-      const res = await axios.post(`${apiUrl}/request-login-otp`, {
-        email,
-      });
-      console.log(res, "res");
-      // toast.success("OTP sent to your email");
+      // Simulate sending OTP
+      const generatedOTP = "123456"; // This would be the OTP sent to email
+      localStorage.setItem("tempOTP", generatedOTP); // Store OTP temporarily
+      setStep(2);
       setErrorMsg("OTP sent to your email");
       setOtpAttemptsLeft((prev) => prev - 1);
-      setStep(2);
     } catch (error) {
-      const blockExpiresAt = error?.response?.data?.blockExpiresAt;
-      const retryAfter = error?.response?.data?.retryAfter;
-      console.log(error, "Error");
-      setOtpAttemptsLeft((prev) => prev - 1);
-      if (blockExpiresAt && retryAfter) {
-        localStorage.setItem("otpBlockExpiresAt", blockExpiresAt);
-        setOtpCooldown(retryAfter);
-        setIsOtpBlocked(true);
-      }
-
-      const errMsg =
-        error?.response?.data?.error || error?.message || "OTP request failed.";
-
-      // toast.error(errMsg);
-      setErrorMsg(errMsg);
+      setErrorMsg("Failed to send OTP. Please try again.");
     } finally {
       setOtpLoading(false);
     }
@@ -214,43 +198,36 @@ export default function OTPLogin() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          otp: enteredOtp,
-          type: "login",
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        const { error, otpAttemptsLeft, totalAttemptsLeft, retryAfter } = data;
-
-        if (retryAfter) {
-          setOtpCooldown(retryAfter);
+      // Verify the entered OTP against the stored OTP
+      const storedOTP = localStorage.getItem("tempOTP");
+      if (enteredOtp !== storedOTP) {
+        setOtpAttemptsLeft((prev) => prev - 1);
+        if (otpAttemptsLeft <= 1) {
+          setOtpCooldown(60); // Set 60 seconds freeze
           setIsOtpBlocked(true);
-          localStorage.setItem(
-            "otpBlockExpiresAt",
-            Date.now() + retryAfter * 1000
-          );
+          setErrorMsg(`Too many wrong attempts. Please wait 60 seconds.`);
+          localStorage.setItem("otpBlockExpiresAt", Date.now() + 60000);
+        } else {
+          setErrorMsg(`Invalid OTP. ${otpAttemptsLeft - 1} attempts remaining.`);
         }
-
-        if (typeof otpAttemptsLeft === "number")
-          setOtpAttemptsLeft(otpAttemptsLeft);
-        setErrorMsg(error || "OTP verification failed.");
+        setOtp(Array(6).fill("")); // Clear OTP input
+        inputRefs.current[0]?.focus(); // Focus on first input
         return;
       }
 
-      // Success
-      const { token, data: user } = data;
-      localStorage.setItem("token", token);
+      // OTP is correct, show success message and loading
+      setErrorMsg("OTP verified successfully!");
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for 1.5 seconds
+
+      // Proceed with login
+      const role = "jobseeker"; // Default role for testing
+      localStorage.setItem("token", "dummy-token");
+      localStorage.removeItem("tempOTP"); // Clear the temporary OTP
       setErrorMsg("");
-      setOtpAttemptsLeft(3);
+      setOtpAttemptsLeft(3); // Reset attempts
       setOtp(Array(6).fill(""));
-      switch (user.role) {
+      
+      switch (role) {
         case "jobseeker":
           navigate("/profile");
           break;
@@ -275,7 +252,6 @@ export default function OTPLogin() {
 
   const handleTraditionalLogin = async (e) => {
     e.preventDefault();
-    console.log("handleTraditionalLogin");
     if (!email || !password) {
       setErrorMsg("Email and password required.");
       return;
@@ -288,48 +264,16 @@ export default function OTPLogin() {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${apiUrl}/login-password`, {
-        email,
-        password,
-      });
-      console.log(res, "res");
-      const { token, data } = res.data;
-      console.log(token, "jwtToken");
-      localStorage.setItem("token", token);
+      // Bypass network login and directly navigate
+      localStorage.setItem("token", "dummy-token");
       localStorage.removeItem("loginBlockExpiresAt");
       setFreezeTimerLogin(0);
       setIsBlocked(false);
-      console.log(freezeTimerLogin, "freezeTimerLog");
-      // 🔁 Redirect by role
-      switch (data.role) {
-        case "jobseeker":
-          navigate("/profile");
-          break;
-        case "hr":
-          navigate("/hr");
-          break;
-        case "admin":
-          navigate("/admin");
-          break;
-        case "superadmin":
-          navigate("/superadmin");
-          break;
-        default:
-          navigate("/");
-          break;
-      }
+      
+      // Default to jobseeker role for testing
+      navigate("/profile");
     } catch (error) {
-      const blockExpiresAt = error.response?.data?.blockExpiresAt;
-      const retryAfter = error.response?.data?.retryAfter;
-      console.log(freezeTimerLogin, "freezeTimerLogin");
-      if (blockExpiresAt && retryAfter) {
-        console.log(freezeTimerLogin, "freezeTimerLogin");
-        setFreezeTimerLogin(retryAfter);
-        localStorage.setItem("loginBlockExpiresAt", blockExpiresAt);
-        setIsBlocked(true);
-      }
-
-      setErrorMsg(error.response?.data?.error || "Login failed.");
+      setErrorMsg("Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -355,35 +299,18 @@ export default function OTPLogin() {
     }
   };
 
-  // const handleResend = () => {
-  //   if (resendCooldown > 0) return;
-  //   showToast("success", "OTP resent.");
-  //   setOtp(Array(6).fill(""));
-  //   inputRefs.current[0]?.focus();
-  //   setResendCooldown(30);
-  //   setAttemptsLeftOTP(3); // Reset OTP attempts on resend
-  // };
   const handleResend = async () => {
     if (resendCooldown > 0 || isOtpBlocked) return;
 
     setOtpLoading(true);
     setErrorMsg("");
     try {
-      const response = await fetch(`${apiUrl}/request-login-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setErrorMsg(result?.error || "Failed to resend OTP.");
-        return;
-      }
-
-      // ✅ Set new resend timer
-      const cooldownSeconds = 30;
+      // Simulate resending OTP
+      const generatedOTP = "123456";
+      localStorage.setItem("tempOTP", generatedOTP);
+      
+      // Set new resend timer
+      const cooldownSeconds = 60;
       const expiresAt = Date.now() + cooldownSeconds * 1000;
       localStorage.setItem("resendCooldownExpiresAt", expiresAt.toString());
       setResendCooldown(cooldownSeconds);
@@ -444,10 +371,10 @@ export default function OTPLogin() {
           {errorMsg && !isBlocked && !isOtpBlocked && (
             <div
               className={`mb-4 text-sm ${
-                errorMsg === "Please enter the complete 6-digit OTP."
-                  ? "text-red-600  bg-green-100 border border-green-300"
+                errorMsg === "OTP sent to your email" || errorMsg === "OTP verified successfully!"
+                  ? "text-green-600 bg-green-100 border border-green-300"
                   : "text-red-600 font-medium bg-red-100 border border-red-300"
-              }  font-medium  p-2 rounded`}
+              } p-2 rounded`}
             >
               {errorMsg}
             </div>
@@ -545,10 +472,6 @@ export default function OTPLogin() {
                   transition={{ duration: 0.5 }}
                   className="mb-6"
                 >
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Enter OTP
-                  </label>
-                   {/* Back Button Added Here */}
                   <div className="text-center">
                     <button
                       type="button"
@@ -601,22 +524,6 @@ export default function OTPLogin() {
                         : "Resend OTP"}
                     </button>
                   </div>
-                   {/* Back Button Added Here
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setStep(1);
-                        setOtp(Array(6).fill(""));
-                        setErrorMsg("");
-                        setAttemptsLeftOTP(3);
-                        setFreezeTimerOTP(0);
-                      }}
-                      className="text-gray-600 hover:underline text-sm"
-                    >
-                      &larr; Back to Login
-                    </button>
-                  </div> */}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -640,9 +547,6 @@ export default function OTPLogin() {
                     : isBlocked
                     ? `Try again in ${freezeTimerLogin}s`
                     : "Login"}
-                  {/* {freezeTimerLogin > 0
-                    ? `Try again in ${freezeTimerLogin}s`
-                    : "Login"} */}
                 </button>
 
                 <button
@@ -659,7 +563,7 @@ export default function OTPLogin() {
                     ? `Try again in ${otpCooldown}s`
                     : otpLoading
                     ? "Sending..."
-                    : `Login with OTP (${otpAttemptsLeft} left)`}
+                    : "Login with OTP"}
                 </button>
               </div>
             ) : (

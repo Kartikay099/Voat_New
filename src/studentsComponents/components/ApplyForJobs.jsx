@@ -426,7 +426,7 @@ function ApplyForJobs() {
                       <Link
                         key={job.id}
                         to={`/apply-for-jobs/job-details/${job.id}`}
-                        className="bg-white rounded-lg p-4 inline-block w-full md:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                        className="bg-white rounded-lg p-4 inline-block w-full md:p-5 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer relative"
                         onClick={() => handleJobClick(job)}
                       >
                         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
@@ -473,14 +473,16 @@ function ApplyForJobs() {
                           </div>
                           <div className="flex flex-row md:flex-col items-center md:items-end gap-2 self-end md:self-auto">
                             {job.isNew && (
-                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full translate-x-25 translate-y-0">
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
                                 New
                               </span>
                             )}
                           </div>
+                        </div>
+                        <div className="mt-4 flex justify-end">
                           <button
                             onClick={() => navigate(`/job/${job._id}`)}
-                            className="bg-blue-600 text-white text-xs sm:text-sm px-4 py-1.5 rounded-b-lg hover:bg-blue-700 transition transform translate-y-30"
+                            className="bg-blue-600 text-white text-xs sm:text-sm px-4 py-1.5 rounded-lg hover:bg-blue-700 transition"
                           >
                             View Job
                           </button>

@@ -66,13 +66,24 @@ const JobCard = ({ job, onCheckEligibility }) => {
           <p className="text-sm text-blue-700 font-medium mb-2">{job.company}</p>
           {renderDetails()}
           {expanded && (
-            <div className="mt-4 p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="font-semibold text-sm sm:text-base mb-2 text-gray-800">
-                Eligibility Criteria
-              </h4>
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                {job.eligibility || "No eligibility criteria specified"}
-              </p>
+            <div className="mt-4 space-y-4">
+              <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+                <h4 className="font-semibold text-sm sm:text-base mb-2 text-gray-800">
+                  Eligibility Criteria
+                </h4>
+                <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                  {job.eligibility || "No eligibility criteria specified"}
+                </p>
+              </div>
+              
+              <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+                <h4 className="font-semibold text-sm sm:text-base mb-2 text-gray-800">
+                  Required Skills
+                </h4>
+                <div className="text-gray-600 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                  {job.requiredSkills || "No specific skills required"}
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -85,7 +96,7 @@ const JobCard = ({ job, onCheckEligibility }) => {
             }}
             className="text-blue-600 text-sm font-medium flex items-center gap-1 hover:underline"
           >
-            {expanded ? "Hide Details" : "Check Eligibility"}
+            {expanded ? "View Less" : job.status === "applied" ? "View Application" : "View Details"}
             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
         </div>

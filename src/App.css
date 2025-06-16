@@ -17,10 +17,10 @@ body {
 /* navbar breathing-effect */
 @keyframes breathing {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(11, 82, 192, 0.6);
+    box-shadow: 0 0 8px rgba(15, 82, 186, 0.6);
   }
   50% {
-    box-shadow: 0 0 20px rgba(11, 82, 192, 1);
+    box-shadow: 0 0 20px rgba(15, 82, 186, 1);
   }
 }
 
