@@ -394,7 +394,7 @@ export default function Profile() {
             <h2 className="text-2xl font-bold">Interview Schedule</h2>
             <div className="flex gap-2">
               <Link
-                to="/schedule"
+                to="/hire/schedule"
                 className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#0F52BA] hover:bg-[#0a3a8a] text-white text-sm"
                 aria-label="View all interviews"
               >
@@ -513,7 +513,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Other Details */}
+        {/* Other Details
         <div className="lg:col-span-2 rounded-xl p-6 shadow-md bg-white">
           <h2 className="text-2xl font-bold mb-6">Other Details</h2>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -545,10 +545,9 @@ export default function Profile() {
               >
                 <Linkedin size={20} className="text-white" />
               </a> */}
-            </div>
+            {/* </div> */} 
           </div>
         </div>
-      </div>
-    </div>
+      
   );
 }

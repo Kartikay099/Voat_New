@@ -290,12 +290,61 @@ const PostJob = () => {
             {/* Left Column - Job Details */}
             <div className="lg:w-2/3 space-y-6">
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-xs h-full">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-100">
-                  <ClipboardList className="h-5 w-5 text-blue-500 inline-block mr-2" />
-                  Job Details
-                </h2>
-
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Attachments Section - Moved to top */}
+                  <div className="space-y-2 pb-6 border-b border-blue-700">
+                    <label className="block text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <Paperclip className="h-5 w-5 text-blue-500 mr-2" />
+                      Attachments
+                      <span className="ml-2 text-sm font-normal text-gray-500">(Optional)</span>
+                    </label>
+                    <span className="block text-sm text-gray-500 mb-4">PDF, DOCX, JPG, PNG (Max 5MB each)</span>
+                    
+                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:border-blue-300 transition-colors">
+                      <label className="flex flex-col items-center justify-center cursor-pointer">
+                        <div className="flex flex-col items-center text-center">
+                          <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-600">
+                            <span className="text-blue-600 font-medium">Click to upload</span> or drag and drop
+                          </p>
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          multiple
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                    </div>
+                    
+                    {files.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {files.map((file, index) => (
+                          <div 
+                            key={index} 
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-md border border-gray-200 hover:border-blue-300 transition-colors"
+                          >
+                            <div className="flex items-center min-w-0">
+                              <Paperclip className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
+                              <span className="truncate text-sm" title={file.name}>
+                                {file.name}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="text-gray-400 hover:text-red-500 ml-2 focus:outline-none"
+                              aria-label={`Remove ${file.name}`}
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Job Title & Company */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -485,107 +534,52 @@ const PostJob = () => {
                     </div>
                   </div>
 
-                  {/* Skills */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Skills Section */}
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Skills Required<span className="text-red-500">*</span>
-                        <span className="block text-xs text-gray-500 mt-1">Add relevant skills for this position</span>
-                      </label>
-                      
-                      <div className="flex">
-                        <input
-                          type="text"
-                          className="flex-grow px-4 py-2.5 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                          placeholder="e.g. React, Python, UX Design"
-                          value={currentSkill}
-                          onChange={(e) => setCurrentSkill(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                        />
-                        <button
-                          type="button"
-                          onClick={addSkill}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-r-lg transition-colors flex items-center justify-center"
-                          aria-label="Add skill"
-                        >
-                          <Plus className="h-5 w-5" />
-                        </button>
-                      </div>
-                      
-                      {formData.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.skills.map(skill => (
-                            <div 
-                              key={skill} 
-                              className="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm transition-colors hover:bg-blue-100"
-                            >
-                              {skill}
-                              <button
-                                type="button"
-                                onClick={() => removeSkill(skill)}
-                                className="ml-1.5 text-blue-500 hover:text-blue-700 focus:outline-none"
-                                aria-label={`Remove ${skill}`}
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                  {/* Skills Section - Now full width */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Skills Required<span className="text-red-500">*</span>
+                      <span className="block text-xs text-gray-500 mt-1">Add relevant skills for this position</span>
+                    </label>
+                    
+                    <div className="flex">
+                      <input
+                        type="text"
+                        className="flex-grow px-4 py-2.5 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                        placeholder="e.g. React, Python, UX Design"
+                        value={currentSkill}
+                        onChange={(e) => setCurrentSkill(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                      />
+                      <button
+                        type="button"
+                        onClick={addSkill}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-r-lg transition-colors flex items-center justify-center"
+                        aria-label="Add skill"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </button>
                     </div>
-
-                    {/* Attachments Section */}
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Attachments
-                        <span className="block text-xs text-gray-500 mt-1">PDF, DOCX, JPG, PNG (Max 5MB each)</span>
-                      </label>
-                      
-                      <div className="bg-gray-50 rounded-lg border border-gray-200 p-2 hover:border-blue-300 transition-colors">
-                        <label className="flex flex-col items-center justify-center cursor-pointer">
-                          <div className="flex flex-col items-center text-center">
-                            <UploadCloud className="h-8 w-8 text-gray-400 mb-1" />
-                            <p className="text-sm text-gray-600">
-                              <span className="text-blue-600 font-medium">Click to upload</span> or drag and drop
-                            </p>
+                    
+                    {formData.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {formData.skills.map(skill => (
+                          <div 
+                            key={skill} 
+                            className="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm transition-colors hover:bg-blue-100"
+                          >
+                            {skill}
+                            <button
+                              type="button"
+                              onClick={() => removeSkill(skill)}
+                              className="ml-1.5 text-blue-500 hover:text-blue-700 focus:outline-none"
+                              aria-label={`Remove ${skill}`}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
                           </div>
-                          <input
-                            type="file"
-                            className="hidden"
-                            multiple
-                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                            onChange={handleFileChange}
-                          />
-                        </label>
+                        ))}
                       </div>
-                      
-                      {files.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {files.map((file, index) => (
-                            <div 
-                              key={index} 
-                              className="flex items-center justify-between bg-white px-3 py-2 rounded-md border border-gray-200 hover:border-blue-300 transition-colors"
-                            >
-                              <div className="flex items-center min-w-0">
-                                <Paperclip className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
-                                <span className="truncate text-sm" title={file.name}>
-                                  {file.name}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => removeFile(index)}
-                                className="text-gray-400 hover:text-red-500 ml-2 focus:outline-none"
-                                aria-label={`Remove ${file.name}`}
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </form>
               </div>
