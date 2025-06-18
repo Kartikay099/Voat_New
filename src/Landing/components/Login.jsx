@@ -160,19 +160,31 @@ export default function OTPLogin() {
 
   const showToast = (type, message) => setToast({ type, message });
 
-  const handleSendOTP = async () => {
-    if (isOtpBlocked) return;
-    if (otpAttemptsLeft < 0) return;
+  const handleSendOTP = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setErrorMsg("Email is required");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrorMsg("Please enter a valid email address");
+      return;
+    }
+    if (isOtpBlocked) {
+      setErrorMsg(`Please wait ${otpCooldown}s before trying again.`);
+      return;
+    }
 
     setOtpLoading(true);
     setErrorMsg("");
     try {
       // Simulate sending OTP
       const generatedOTP = "123456"; // This would be the OTP sent to email
-      localStorage.setItem("tempOTP", generatedOTP); // Store OTP temporarily
+      localStorage.setItem("tempOTP", generatedOTP);
       setStep(2);
-      setErrorMsg("OTP sent to your email");
-      setOtpAttemptsLeft((prev) => prev - 1);
+      setErrorMsg(`OTP sent to ${email}`);
+      setOtpAttemptsLeft(3);
+      setResendCooldown(60);
     } catch (error) {
       setErrorMsg("Failed to send OTP. Please try again.");
     } finally {
@@ -189,60 +201,41 @@ export default function OTPLogin() {
       return;
     }
 
-    if (freezeTimerOTP > 0 || isOtpBlocked) {
-      setErrorMsg(
-        `Please wait ${freezeTimerOTP || otpCooldown}s before trying OTP again.`
-      );
+    if (isOtpBlocked) {
+      setErrorMsg(`Please wait ${otpCooldown}s before trying again.`);
       return;
     }
 
     setLoading(true);
     try {
-      // Verify the entered OTP against the stored OTP
       const storedOTP = localStorage.getItem("tempOTP");
       if (enteredOtp !== storedOTP) {
         setOtpAttemptsLeft((prev) => prev - 1);
         if (otpAttemptsLeft <= 1) {
-          setOtpCooldown(60); // Set 60 seconds freeze
+          setOtpCooldown(60);
           setIsOtpBlocked(true);
-          setErrorMsg(`Too many wrong attempts. Please wait 60 seconds.`);
-          localStorage.setItem("otpBlockExpiresAt", Date.now() + 60000);
+          setErrorMsg("Too many wrong attempts. Please wait 60 seconds.");
         } else {
           setErrorMsg(`Invalid OTP. ${otpAttemptsLeft - 1} attempts remaining.`);
         }
-        setOtp(Array(6).fill("")); // Clear OTP input
-        inputRefs.current[0]?.focus(); // Focus on first input
+        setOtp(Array(6).fill(""));
+        inputRefs.current[0]?.focus();
         return;
       }
 
-      // OTP is correct, show success message and loading
+      // OTP is correct
       setErrorMsg("OTP verified successfully!");
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for 1.5 seconds
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Proceed with login
-      const role = "jobseeker"; // Default role for testing
       localStorage.setItem("token", "dummy-token");
-      localStorage.removeItem("tempOTP"); // Clear the temporary OTP
+      localStorage.removeItem("tempOTP");
       setErrorMsg("");
-      setOtpAttemptsLeft(3); // Reset attempts
+      setOtpAttemptsLeft(3);
       setOtp(Array(6).fill(""));
       
-      switch (role) {
-        case "jobseeker":
-          navigate("/profile");
-          break;
-        case "hr":
-          navigate("/hr");
-          break;
-        case "admin":
-          navigate("/admin");
-          break;
-        case "superadmin":
-          navigate("/superadmin");
-          break;
-        default:
-          navigate("/");
-      }
+      // Navigate based on role (defaulting to jobseeker for now)
+      navigate("/profile");
     } catch (err) {
       setErrorMsg("OTP verification failed.");
     } finally {
@@ -252,25 +245,24 @@ export default function OTPLogin() {
 
   const handleTraditionalLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setErrorMsg("Email and password required.");
+    if (!email) {
+      setErrorMsg("Email is required");
       return;
     }
-
-    if (isBlocked) {
-      toast.error(`Please wait ${freezeTimerLogin}s before trying again.`);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrorMsg("Please enter a valid email address");
+      return;
+    }
+    if (!password) {
+      setErrorMsg("Password is required");
       return;
     }
 
     setLoading(true);
     try {
-      // Bypass network login and directly navigate
+      // Simulate login
+      await new Promise(resolve => setTimeout(resolve, 1000));
       localStorage.setItem("token", "dummy-token");
-      localStorage.removeItem("loginBlockExpiresAt");
-      setFreezeTimerLogin(0);
-      setIsBlocked(false);
-      
-      // Default to jobseeker role for testing
       navigate("/profile");
     } catch (error) {
       setErrorMsg("Login failed. Please try again.");
@@ -305,18 +297,12 @@ export default function OTPLogin() {
     setOtpLoading(true);
     setErrorMsg("");
     try {
-      // Simulate resending OTP
       const generatedOTP = "123456";
       localStorage.setItem("tempOTP", generatedOTP);
-      
-      // Set new resend timer
-      const cooldownSeconds = 60;
-      const expiresAt = Date.now() + cooldownSeconds * 1000;
-      localStorage.setItem("resendCooldownExpiresAt", expiresAt.toString());
-      setResendCooldown(cooldownSeconds);
+      setResendCooldown(60);
       setOtp(Array(6).fill(""));
       inputRefs.current[0]?.focus();
-      setErrorMsg("OTP resent successfully.");
+      setErrorMsg(`OTP resent to ${email}`);
     } catch (err) {
       setErrorMsg("Failed to resend OTP.");
     } finally {
@@ -371,7 +357,7 @@ export default function OTPLogin() {
           {errorMsg && !isBlocked && !isOtpBlocked && (
             <div
               className={`mb-4 text-sm ${
-                errorMsg === "OTP sent to your email" || errorMsg === "OTP verified successfully!"
+                errorMsg.includes("OTP sent to") || errorMsg.includes("OTP resent to") || errorMsg === "OTP verified successfully!"
                   ? "text-green-600 bg-green-100 border border-green-300"
                   : "text-red-600 font-medium bg-red-100 border border-red-300"
               } p-2 rounded`}
@@ -395,34 +381,39 @@ export default function OTPLogin() {
             )}
           </AnimatePresence>
           <form onSubmit={step === 1 ? handleSendOTP : handleVerifyOTP}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (step === 2) {
-                      setStep(1);
-                      setOtp(Array(6).fill(""));
-                      setErrorMsg("");
-                      setAttemptsLeftOTP(3);
-                      setFreezeTimerOTP(0);
-                    }
-                  }}
-                  required
-                />
-                <Mail
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                  size={20}
-                />
+            {step === 1 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setErrorMsg(""); // Clear error when user types
+                      if (step === 2) {
+                        setStep(1);
+                        setOtp(Array(6).fill(""));
+                        setErrorMsg("");
+                        setAttemptsLeftOTP(3);
+                        setFreezeTimerOTP(0);
+                      }
+                    }}
+                    required
+                    pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+                    title="Please enter a valid email address"
+                  />
+                  <Mail
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    size={20}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {step === 1 && (
               <>
@@ -578,13 +569,18 @@ export default function OTPLogin() {
                 }`}
               >
                 {loading ? (
-                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></span>
-                ) : freezeTimerOTP > 0 ? (
-                  `Try again in ${freezeTimerOTP}s`
+                  <span className="flex items-center justify-center">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-1.5 h-4 bg-white rounded-full animate-[pulse_0.8s_ease-in-out_infinite]"></div>
+                      <div className="w-1.5 h-4 bg-white rounded-full animate-[pulse_0.8s_ease-in-out_0.2s_infinite]"></div>
+                      <div className="w-1.5 h-4 bg-white rounded-full animate-[pulse_0.8s_ease-in-out_0.4s_infinite]"></div>
+                      <div className="w-1.5 h-4 bg-white rounded-full animate-[pulse_0.8s_ease-in-out_0.6s_infinite]"></div>
+                    </div>
+                    <span className="ml-2">Logging in...</span>
+                  </span>
                 ) : (
                   "Verify OTP"
                 )}
-                
               </button>
               
             )}

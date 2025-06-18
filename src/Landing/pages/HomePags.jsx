@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function HomePags() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -22,14 +23,29 @@ function HomePags() {
   return (
     <div className="home-page-container flex flex-col items-center min-h-screen bg-[#f5faff]">
       <div className="w-full max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-4xl text-center font-bold mb-8">
+        <motion.h1 
+          className="text-4xl text-center font-bold mb-8"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
           This Platform make easy to <br />
           <span className="text-blue-600"> find job & Hire Job </span>
-        </h1>
+        </motion.h1>
         
-        <div className="bg-white p-6 shadow-lg rounded-lg mb-12">
+        <motion.div 
+          className="bg-white p-6 shadow-lg rounded-lg mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          whileHover={{ y: -5, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
+        >
           <form className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
+            <motion.div 
+              className="flex-1 relative"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
               <svg
                 stroke="currentColor"
                 fill="currentColor"
@@ -45,19 +61,27 @@ function HomePags() {
               </svg>
               <input
                 type="text"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                 placeholder="Job title, keywords, or company"
                 style={{ paddingLeft: "2.5rem" }}
               />
-            </div>
-            <div className="flex-1 relative">
+            </motion.div>
+            <motion.div 
+              className="flex-1 relative"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
               <input
                 type="text"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                 placeholder="Experience level"
               />
-            </div>
-            <div className="flex-1 relative">
+            </motion.div>
+            <motion.div 
+              className="flex-1 relative"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
               <svg
                 stroke="currentColor"
                 fill="currentColor"
@@ -78,59 +102,103 @@ function HomePags() {
               </svg>
               <input
                 type="text"
-                className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                 placeholder="Location"
                 style={{ paddingLeft: "2.5rem" }}
               />
-            </div>
-            <button
+            </motion.div>
+            <motion.button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-all duration-300"
               style={{ padding: "0.5rem 1.5rem" }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
             >
               Search jobs
-            </button>
+            </motion.button>
           </form>
-        </div>
+        </motion.div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="w-full md:w-1/2 flex justify-center">
             <div className="relative w-[400px] h-[400px] bg-[#f5faff] rounded-lg">
-              {images.map((src, index) => (
-                <img
-                  key={index}
-                  src={src}
-                  alt={`Professional Staffing Illustration ${index + 1}`}
-                  className={`absolute inset-0 w-full h-full object-contain transition-all duration-1000 ease-in-out ${
-                    currentImageIndex === index 
-                      ? 'opacity-100 scale-100 rotate-0' 
-                      : 'opacity-0 scale-95 rotate-1'
-                  }`}
-                  style={{ 
-                    backgroundColor: 'transparent',
-                    filter: 'brightness(1.05) contrast(1.05)',
-                    mixBlendMode: 'multiply',
-                    transformOrigin: 'center center',
-                    willChange: 'transform, opacity'
-                  }}
-                />
-              ))}
+              <AnimatePresence mode="wait">
+                {images.map((src, index) => (
+                  <motion.img
+                    key={index}
+                    src={src}
+                    alt={`Professional Staffing Illustration ${index + 1}`}
+                    className="absolute inset-0 w-full h-full object-contain"
+                    style={{ 
+                      backgroundColor: 'transparent',
+                      filter: 'brightness(1.05) contrast(1.05)',
+                      mixBlendMode: 'multiply',
+                      transformOrigin: 'center center',
+                      willChange: 'transform, opacity'
+                    }}
+                    initial={{ 
+                      opacity: 0, 
+                      scale: 0.8, 
+                      rotateY: -15,
+                      filter: 'blur(2px)'
+                    }}
+                    animate={currentImageIndex === index ? {
+                      opacity: 1, 
+                      scale: 1, 
+                      rotateY: 0,
+                      filter: 'blur(0px)'
+                    } : {
+                      opacity: 0, 
+                      scale: 0.8, 
+                      rotateY: 15,
+                      filter: 'blur(2px)'
+                    }}
+                    exit={{ 
+                      opacity: 0, 
+                      scale: 0.8, 
+                      rotateY: 15,
+                      filter: 'blur(2px)'
+                    }}
+                    transition={{ 
+                      duration: 1.2, 
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                      scale: { duration: 0.8 },
+                      filter: { duration: 0.6 }
+                    }}
+                  />
+                ))}
+              </AnimatePresence>
             </div>
           </div>
 
           <div className="w-full md:w-1/2 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <h2 className="text-3xl font-bold text-blue-600 mb-2">2k+</h2>
-              <p className="text-gray-600">Qualified Candidates</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <h2 className="text-3xl font-bold text-blue-600 mb-2">500+</h2>
-              <p className="text-gray-600">Active Jobs</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <h2 className="text-3xl font-bold text-blue-600 mb-2">100+</h2>
-              <p className="text-gray-600">Companies</p>
-            </div>
+            {[
+              { number: "2k+", label: "Qualified Candidates" },
+              { number: "500+", label: "Active Jobs" },
+              { number: "100+", label: "Companies" }
+            ].map((stat, index) => (
+              <motion.div 
+                key={index}
+                className="bg-white p-6 rounded-lg shadow-lg text-center"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                whileHover={{ 
+                  y: -8, 
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  scale: 1.05
+                }}
+              >
+                <motion.h2 
+                  className="text-3xl font-bold text-blue-600 mb-2"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {stat.number}
+                </motion.h2>
+                <p className="text-gray-600">{stat.label}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>

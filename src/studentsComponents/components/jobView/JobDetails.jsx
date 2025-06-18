@@ -15,12 +15,20 @@ import { useUserJobContext } from "../../contexts/UserJobContext";
 
 const JobDetails = ({}) => {
   const { id } = useParams();
-  const { savedJobs, getDaysAgo, selectedJob, setSelectedJob, handleApplyNow } =
-    useUserJobContext();
+  const { 
+    savedJobs, 
+    getDaysAgo, 
+    selectedJob, 
+    setSelectedJob, 
+    handleApplyNow,
+    appliedJobs 
+  } = useUserJobContext();
 
   if (!id) {
     return <div>Job not found</div>;
   }
+
+  const isApplied = appliedJobs.some(job => job.id === selectedJob?.id);
 
   return (
     <div className="flex">
@@ -46,9 +54,11 @@ const JobDetails = ({}) => {
                   <h1 className="text-2xl md:text-3xl font-bold">
                     {selectedJob.title}
                   </h1>
-                  {/* <span className="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full self-start md:self-auto w-28 text-center">
+                  {isApplied && (
+                    <span className="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full self-start md:self-auto w-28 text-center">
                     • Applied
-                  </span> */}
+                    </span>
+                  )}
                 </div>
               </div>
               <button
@@ -59,12 +69,12 @@ const JobDetails = ({}) => {
                     : "bg-gray-100"
                 }`}
               >
-                {/* <Bookmark
+                <Bookmark
                   size={24}
                   fill={
                     savedJobs.includes(selectedJob.id) ? "currentColor" : "none"
                   }
-                /> */}
+                />
               </button>
             </div>
 
@@ -164,6 +174,14 @@ const JobDetails = ({}) => {
             </div>
 
             <div className="flex justify-end">
+              {isApplied ? (
+                <Link
+                  to="/applied-jobs"
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-md transition-colors text-lg w-full md:w-auto"
+                >
+                  View Application
+                </Link>
+              ) : (
               <Link
                 to="/applied-jobs"
                 onClick={() => handleApplyNow(selectedJob.id)}
@@ -171,6 +189,7 @@ const JobDetails = ({}) => {
               >
                 Apply Now
               </Link>
+              )}
             </div>
           </div>
         </div>

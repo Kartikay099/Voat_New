@@ -26,6 +26,7 @@ import Hiring from "./Hrdashboard/hr pages/Hiring";
 import ForgotPassword from "./Landing/components/ForgotPassword";
 import Navbar from "./Landing/components/Navbar";
 import ChangePassword from "./studentsComponents/components/ChangePassword";
+import CustomCursor from "./components/CustomCursor";
 
 import "./App.css";
 
@@ -46,6 +47,9 @@ function App() {
 
   return (
     <>
+      {/* Custom Cursor */}
+      <CustomCursor />
+      
       {/* ✅ Padding only for main page */}
       {isMainPage && <div className="pt-1" />}
 

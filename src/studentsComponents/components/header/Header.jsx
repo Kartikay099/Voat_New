@@ -33,7 +33,7 @@ export const navItems = [
   },
   {
     icon: <Briefcase />,
-    label: "Job Applied",
+    label: "Jobs Applied",
     path: "/applied-jobs",
   },
 ];

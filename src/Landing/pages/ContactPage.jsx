@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const InputField = ({ label, type = "text", name, value, onChange, placeholder }) => (
-  <div>
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={{ duration: 0.2 }}
+  >
     <label className="block mb-1 font-semibold text-blue-800" htmlFor={name}>
       {label}
     </label>
@@ -13,13 +16,16 @@ const InputField = ({ label, type = "text", name, value, onChange, placeholder }
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-3 focus:ring-blue-400 transition-all"
+      className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-3 focus:ring-blue-400 transition-all duration-300 hover:border-blue-300"
     />
-  </div>
+  </motion.div>
 );
 
 const TextAreaField = ({ name, value, onChange, placeholder, rows = 5 }) => (
-  <div>
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={{ duration: 0.2 }}
+  >
     <label className="block mb-1 font-semibold text-blue-800" htmlFor={name}>
       Message
     </label>
@@ -30,9 +36,9 @@ const TextAreaField = ({ name, value, onChange, placeholder, rows = 5 }) => (
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-3 focus:ring-blue-400 transition-all resize-none"
+      className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-3 focus:ring-blue-400 transition-all duration-300 resize-none hover:border-blue-300"
     />
-  </div>
+  </motion.div>
 );
 
 const ContactPage = () => {
@@ -118,11 +124,14 @@ const ContactPage = () => {
             value={formData.message}
             onChange={handleInputChange}
           />
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
             className={`w-full py-3 rounded-md text-white font-semibold transition-all duration-300
               ${loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+            whileHover={!loading ? { scale: 1.02, y: -2 } : {}}
+            whileTap={!loading ? { scale: 0.98 } : {}}
+            transition={{ duration: 0.2 }}
           >
             {loading ? (
               <svg
@@ -148,7 +157,7 @@ const ContactPage = () => {
             ) : (
               "Submit"
             )}
-          </button>
+          </motion.button>
 
           <AnimatePresence>
             {error && (

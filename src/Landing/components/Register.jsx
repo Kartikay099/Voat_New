@@ -14,6 +14,8 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState(new Array(6).fill(""));
@@ -54,17 +56,51 @@ export default function Register() {
     }
   }, [lockTimer]);
 
+  // Password strength checker
+  useEffect(() => {
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[a-z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength += 1;
+    setPasswordStrength(strength);
+  }, [password]);
+
   const validateName = (name) => /^[a-zA-Z\s]{3,50}$/.test(name.trim());
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const validatePassword = (password) =>
     /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/.test(password);
-  const validateFile = (file) => file && file.type === "application/pdf";
+
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength <= 2) return "bg-red-500";
+    if (passwordStrength <= 3) return "bg-yellow-500";
+    if (passwordStrength <= 4) return "bg-blue-500";
+    return "bg-green-500";
+  };
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength <= 2) return "Weak";
+    if (passwordStrength <= 3) return "Fair";
+    if (passwordStrength <= 4) return "Good";
+    return "Strong";
+  };
+
+  const validateFile = (file) => {
+    if (!file) return false;
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ];
+    return allowedTypes.includes(file.type);
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return setSelectedFile(null);
     if (!validateFile(file)) {
-      toast.error("Please upload a valid PDF file.");
+      toast.error("Please upload a valid PDF, DOC, or DOCX file.");
       e.target.value = null;
       return;
     }
@@ -87,7 +123,7 @@ export default function Register() {
       return;
     }
     if (activeTab === "left" && !validateFile(selectedFile)) {
-      toast.error("Please upload a valid PDF resume.");
+      toast.error("Please upload a valid PDF, DOC, or DOCX resume.");
       return;
     }
 
@@ -103,7 +139,7 @@ export default function Register() {
       setResendTimer(60);
       setAttemptsLeft(3);
       setLockTimer(0);
-      toast.success(isResend ? "OTP resent!" : "OTP sent! Please check your email.");
+      toast.success(isResend ? `OTP resent to ${email}!` : `OTP sent to ${email}! Please check your email.`);
     } catch (error) {
       toast.error("Failed to send OTP, please try again.");
     } finally {
@@ -260,7 +296,7 @@ export default function Register() {
                     }}
                     maxLength={50}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition-all duration-200"
                     placeholder="Enter your name"
                   />
                 </div>
@@ -275,7 +311,7 @@ export default function Register() {
                     onChange={(e) => setEmail(e.target.value)}
                     maxLength={100}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-blue-400"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition-all duration-200"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -291,29 +327,133 @@ export default function Register() {
                     minLength={8}
                     maxLength={30}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-m text-gray-900  placeholder-blue-400 bg-white"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition-all duration-200"
                     placeholder="Min 8 chars with upper, lower, digit & special"
                   />
                   <span
-                    className="absolute top-9 right-3 cursor-pointer text-gray-600"
+                    className="absolute top-9 right-3 cursor-pointer text-gray-600 hover:text-gray-800 transition-colors duration-200"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </span>
                 </div>
 
+                {/* Password Strength Indicator */}
+                {password && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="space-y-2"
+                  >
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Password strength:</span>
+                      <span className={`font-medium ${getPasswordStrengthColor().replace('bg-', 'text-')}`}>
+                        {getPasswordStrengthText()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <motion.div
+                        className={`h-2 rounded-full ${getPasswordStrengthColor()}`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(passwordStrength / 5) * 100}%` }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                      <div className={`flex items-center gap-1 ${password.length >= 8 ? 'text-green-600' : ''}`}>
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        At least 8 characters
+                      </div>
+                      <div className={`flex items-center gap-1 ${/[A-Z]/.test(password) ? 'text-green-600' : ''}`}>
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        One uppercase letter
+                      </div>
+                      <div className={`flex items-center gap-1 ${/[a-z]/.test(password) ? 'text-green-600' : ''}`}>
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        One lowercase letter
+                      </div>
+                      <div className={`flex items-center gap-1 ${/[0-9]/.test(password) ? 'text-green-600' : ''}`}>
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        One number
+                      </div>
+                      <div className={`flex items-center gap-1 ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? 'text-green-600' : ''}`}>
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        One special character
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
                 {activeTab === "left" && (
                   <div>
                     <label className="block mb-1 text-sm font-semibold text-gray-700">
-                      Upload Resume (PDF)
+                      Upload Resume (PDF, DOC, or DOCX)
                     </label>
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={handleFileChange}
-                      required
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
-                    />
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={handleFileChange}
+                        required
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        id="file-upload"
+                      />
+                      <div className={`border-2 border-dashed rounded-lg p-3 text-center transition-all duration-300 bg-white ${
+                        isDragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                      }`}>
+                        {selectedFile ? (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900 truncate">{selectedFile.name}</p>
+                                <p className="text-xs text-gray-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedFile(null);
+                                document.getElementById('file-upload').value = '';
+                              }}
+                              className="text-xs text-red-600 hover:text-red-800 underline"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                              </svg>
+                            </div>
+                            <div className="text-left">
+                              <p className="text-sm font-medium text-gray-900">
+                                Click to upload or drag and drop
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                PDF, DOC, or DOCX (max 10MB)
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -355,6 +495,7 @@ export default function Register() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-md flex flex-col items-center"
+
               >
                 <h2 className="text-center text-2xl font-bold mb-6 text-gray-900">
                   Enter OTP
@@ -436,3 +577,4 @@ export default function Register() {
     </section>
   );
 }
+

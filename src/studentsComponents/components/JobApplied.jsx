@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect } from "react";
 import { Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -106,9 +102,9 @@ const JobApplied = () => {
     <div className="flex">
       <Header />
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 max-w-[1800px] mx-auto p-2 h-screen flex flex-col">
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-[#F5F7FF]">
           <div className="container mx-auto">
-            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-none">
               <div className="mb-4 sm:mb-6">
                 <div className="mb-3 sm:mb-4">
                   <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">

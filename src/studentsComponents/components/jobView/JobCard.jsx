@@ -64,9 +64,11 @@ const JobCard = ({ job, onCheckEligibility }) => {
           {/* <div className="text-gray-400 text-xs mb-1">{job.id}</div> */}
           <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-1 pr-20">{job.title}</h3>
           <p className="text-sm text-blue-700 font-medium mb-2">{job.company}</p>
-          {renderDetails()}
+          <div className="max-h-[150px] overflow-y-auto custom-scrollbar pr-3">
+            {renderDetails()}
+          </div>
           {expanded && (
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-3">
               <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="font-semibold text-sm sm:text-base mb-2 text-gray-800">
                   Eligibility Criteria
