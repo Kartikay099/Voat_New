@@ -27,6 +27,8 @@ import ForgotPassword from "./Landing/components/ForgotPassword";
 import Navbar from "./Landing/components/Navbar";
 import ChangePassword from "./studentsComponents/components/ChangePassword";
 import CustomCursor from "./components/CustomCursor";
+import StudentEmailOtp from "./studentsComponents/components/StudentEmailOtp";
+import { Toaster } from 'react-hot-toast';
 
 import "./App.css";
 
@@ -51,6 +53,8 @@ function App() {
       {isMainPage && <CustomCursor />}
       {/* ✅ Padding only for main page */}
       {isMainPage && <div className="pt-1" />}
+
+      <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
         {/* Public Routes */}
@@ -83,6 +87,14 @@ function App() {
           element={
             <StudentLayout>
               <StudentProfile />
+            </StudentLayout>
+          }
+        />
+        <Route
+          path="/verify-email-otp"
+          element={
+            <StudentLayout>
+              <StudentEmailOtp />
             </StudentLayout>
           }
         />

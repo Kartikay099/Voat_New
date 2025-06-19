@@ -77,9 +77,9 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="relative flex w-40 rounded-full bg-white overflow-hidden h-9">
+          <div className="relative flex w-40 rounded-full bg-white overflow-hidden h-9 border-2 border-blue-600">
             <div
-              className={`absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-full transition-transform duration-300 ${
+              className={`absolute top-0 bottom-0 left-[-2px] w-[calc(52%)] bg-gradient-to-r from-blue-600 to-blue-500 rounded-full transition-transform duration-300 ${
                 activeTab === "right" ? "translate-x-full" : "translate-x-0"
               }`}
             />
@@ -122,7 +122,7 @@ const Navbar = () => {
 
         <ul className="flex flex-col gap-4 text-white text-sm">
           <li>
-            <div className="relative flex w-full rounded-full bg-white overflow-hidden h-7">
+            <div className="relative flex w-full rounded-full bg-white overflow-hidden h-7 border-2 border-blue-600">
               <div
                 className={`absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-blue-600 to-blue-500 transition-transform duration-350 ${
                   activeTab === "right" ? "translate-x-full" : "translate-x-0"

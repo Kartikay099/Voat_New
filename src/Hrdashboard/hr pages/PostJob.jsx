@@ -61,6 +61,7 @@ const PostJob = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [files, setFiles] = useState([]);
+  const [fileError, setFileError] = useState("");
 
   const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'];
   const experienceLevels = ['Entry-level', 'Mid-level', 'Senior', 'Lead', 'Executive'];
@@ -158,7 +159,13 @@ const PostJob = () => {
   };
 
   const handleFileChange = (e) => {
+    setFileError("");
     const selectedFiles = Array.from(e.target.files);
+    const oversized = selectedFiles.find(file => file.size > 5 * 1024 * 1024);
+    if (oversized) {
+      setFileError("Each file must be 5MB or less.");
+      return;
+    }
     if (selectedFiles.length > 0) {
       setFiles([...files, ...selectedFiles]);
     }
@@ -190,52 +197,53 @@ const PostJob = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+    setFileError("");
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = 'Job title is required';
     if (!formData.company.trim()) newErrors.company = 'Company name is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.location.trim()) newErrors.location = 'Location is required';
-    
     if (!formData.salaryMin) newErrors.salaryMin = 'Minimum salary is required';
     if (!formData.salaryMax) newErrors.salaryMax = 'Maximum salary is required';
-    
+    if (!formData.skills || formData.skills.length === 0) newErrors.skills = 'At least one skill is required';
+    if (files.some(file => file.size > 5 * 1024 * 1024)) {
+      setFileError("Each file must be 5MB or less.");
+      setIsSubmitting(false);
+      return;
+    }
     if (formData.salaryMin && formData.salaryMax) {
       const minValue = parseInt(formData.salaryMin.replace(/[^\d]/g, ''), 10);
       const maxValue = parseInt(formData.salaryMax.replace(/[^\d]/g, ''), 10);
-      
       if (minValue > maxValue) {
         newErrors.salaryMax = 'Maximum salary must be greater than minimum';
       }
-      
       if (minValue <= 0) {
         newErrors.salaryMin = 'Salary must be greater than 0';
       }
-      
       if (maxValue <= 0) {
         newErrors.salaryMax = 'Salary must be greater than 0';
       }
     }
-    
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsSubmitting(false);
       return;
     }
-    
+    const finalAutoStop = autoStopSettings.enabled ? {
+      ...autoStopSettings,
+      applicationsCount: Number(autoStopSettings.applicationsCount) || 0,
+      daysCount: Number(autoStopSettings.daysCount) || 0,
+    } : null;
     const finalData = {
       ...formData,
-      autoStopSettings: autoStopSettings.enabled ? autoStopSettings : null,
+      autoStopSettings: finalAutoStop,
       postedDate: isEditing ? formData.postedDate : new Date().toISOString().split('T')[0],
       attachments: files.map(file => file.name)
     };
-    
     setTimeout(() => {
       console.log(isEditing ? 'Job updated:' : 'Job posted:', finalData);
-      
       setSubmitSuccess(true);
       setIsSubmitting(false);
-      
       setTimeout(() => {
         if (isEditing) {
           navigate('/all-jobs', { 
@@ -292,31 +300,34 @@ const PostJob = () => {
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-xs h-full">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Attachments Section - Moved to top */}
-                  <div className="space-y-2 pb-6 border-b border-blue-700">
-                    <label className="block text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <Paperclip className="h-5 w-5 text-blue-500 mr-2" />
-                      Attachments
-                      <span className="ml-2 text-sm font-normal text-gray-500">(Optional)</span>
-                    </label>
-                    <span className="block text-sm text-gray-500 mb-4">PDF, DOCX, JPG, PNG (Max 5MB each)</span>
-                    
-                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:border-blue-300 transition-colors">
-                      <label className="flex flex-col items-center justify-center cursor-pointer">
-                        <div className="flex flex-col items-center text-center">
-                          <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
-                          <p className="text-sm text-gray-600">
-                            <span className="text-blue-600 font-medium">Click to upload</span> or drag and drop
-                          </p>
-                        </div>
-                        <input
-                          type="file"
-                          className="hidden"
-                          multiple
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          onChange={handleFileChange}
-                        />
+                  <div className=" pb-2 border-b border-blue-700">
+                    <div className="flex items-center justify-between mb-4">
+                      <label className="block text-lg font-semibold text-gray-900 flex items-center">
+                        <Paperclip className="h-5 w-5 text-blue-500 mr-2" />
+                        Attachments
+                        <span className="ml-2 text-sm font-normal text-gray-500">(Optional)</span>
                       </label>
+                      
+                      <div className="bg-gray-50 rounded-lg border border-gray-200 p-2 hover:border-blue-300 transition-colors">
+                        <label className="flex items-center cursor-pointer">
+                          <div className="flex items-center">
+                            <UploadCloud className="h-5 w-5 text-gray-400 mr-2" />
+                            <p className="text-sm text-gray-600">
+                              <span className="text-blue-600 font-medium">Click to upload</span>
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            multiple
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                      </div>
                     </div>
+
+                    <span className="block text-sm text-gray-500 mb-1">PDF, DOCX, JPG, PNG (Max 5MB each)</span>
                     
                     {files.length > 0 && (
                       <div className="mt-3 space-y-2">
@@ -342,6 +353,9 @@ const PostJob = () => {
                           </div>
                         ))}
                       </div>
+                    )}
+                    {fileError && (
+                      <div className="text-red-600 text-sm mt-2">{fileError}</div>
                     )}
                   </div>
 
@@ -414,22 +428,25 @@ const PostJob = () => {
                     )}
                   </div>
 
-                  {/* Location & Salary */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Combined Location, Job Type & Experience in one row */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">
                         Location<span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        name="location"
-                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 ${
-                          errors.location ? 'border-red-300 focus:ring-red-200' : 'border-gray-300'
-                        }`}
-                        placeholder="e.g. New York, NY or Remote"
-                        value={formData.location}
-                        onChange={handleInputChange}
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="location"
+                          className={`w-full pr-11 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 ${
+                            errors.location ? 'border-red-300 focus:ring-red-200' : 'border-gray-300'
+                          }`}
+                          placeholder="e.g. New York, NY"
+                          value={formData.location}
+                          onChange={handleInputChange}
+                        />
+                        <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                      </div>
                       {errors.location && (
                         <p className="mt-1 text-sm text-red-600 flex items-center">
                           <AlertCircle className="h-4 w-4 mr-1" />
@@ -440,47 +457,100 @@ const PostJob = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Salary Range<span className="text-red-500">*</span>
+                        Job Type
                       </label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                        <select
+                          name="type"
+                          className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 appearance-none"
+                          value={formData.type}
+                          onChange={handleInputChange}
+                        >
+                          {jobTypes.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Experience Level
+                      </label>
+                      <div className="relative">
+                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                        <select
+                          name="experience"
+                          className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 appearance-none"
+                          value={formData.experience}
+                          onChange={handleInputChange}
+                        >
+                          {experienceLevels.map(level => (
+                            <option key={level} value={level}>{level}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Salary Range */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Salary Range<span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center gap-4">
+                      {/* Min Salary */}
+                      <div className="flex-1">
+                        <div className="relative">
                           <input
                             type="text"
                             name="salaryMin"
-                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 ${
+                            className={`w-full pr-11 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 ${
                               errors.salaryMin ? 'border-red-300 focus:ring-red-200' : 'border-gray-300'
                             }`}
-                            placeholder="Min salary"
+                            placeholder="Min"
                             value={formData.salaryMin}
                             onChange={handleSalaryChange}
                           />
-                          {errors.salaryMin && (
-                            <p className="mt-1.5 text-sm text-red-600 flex items-center">
-                              <AlertCircle className="h-4 w-4 mr-1" />
-                              {errors.salaryMin}
-                            </p>
-                          )}
+                          <DollarSign className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                         </div>
-                        <div>
+                        {errors.salaryMin && (
+                          <p className="mt-1.5 text-sm text-red-600 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {errors.salaryMin}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* To */}
+                      <span className="text-gray-500">to</span>
+
+                      {/* Max Salary */}
+                      <div className="flex-1">
+                        <div className="relative">
                           <input
                             type="text"
                             name="salaryMax"
-                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 ${
+                            className={`w-full pr-11 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 ${
                               errors.salaryMax ? 'border-red-300 focus:ring-red-200' : 'border-gray-300'
                             }`}
-                            placeholder="Max salary"
+                            placeholder="Max"
                             value={formData.salaryMax}
                             onChange={handleSalaryChange}
                           />
-                          {errors.salaryMax && (
-                            <p className="mt-1.5 text-sm text-red-600 flex items-center">
-                              <AlertCircle className="h-4 w-4 mr-1" />
-                              {errors.salaryMax}
-                            </p>
-                          )}
+                          <DollarSign className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                         </div>
+                        {errors.salaryMax && (
+                          <p className="mt-1.5 text-sm text-red-600 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {errors.salaryMax}
+                          </p>
+                        )}
                       </div>
-                      <div className="mt-2">
+
+                      {/* Period Selector */}
+                      <div className="w-32">
                         <select
                           name="salaryPeriod"
                           className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 ${
@@ -499,42 +569,7 @@ const PostJob = () => {
                     </div>
                   </div>
 
-                  {/* Job Type & Experience */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Job Type
-                      </label>
-                      <select
-                        name="type"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                        value={formData.type}
-                        onChange={handleInputChange}
-                      >
-                        {jobTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Experience Level
-                      </label>
-                      <select
-                        name="experience"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                        value={formData.experience}
-                        onChange={handleInputChange}
-                      >
-                        {experienceLevels.map(level => (
-                          <option key={level} value={level}>{level}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Skills Section - Now full width */}
+                  {/* Skills Section */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
                       Skills Required<span className="text-red-500">*</span>
@@ -580,7 +615,25 @@ const PostJob = () => {
                         ))}
                       </div>
                     )}
+                    {errors.skills && (
+                      <div className="text-red-600 text-sm mt-1">{errors.skills}</div>
+                    )}
                   </div>
+                  {/* Submit Button at the end of the form */}
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center justify-center mt-6"
+                    disabled={isSubmitting || submitSuccess}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                        {isEditing ? 'Updating...' : 'Posting...'}
+                      </>
+                    ) : (
+                      isEditing ? 'Update Job' : 'Post Job Now'
+                    )}
+                  </button>
                 </form>
               </div>
             </div>
@@ -675,55 +728,45 @@ const PostJob = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t pt-9">
-                    <div className='mt-3 mb-2.5'>
-                      <label htmlFor="isUrgent" className="text-sm font-medium text-gray-700 cursor-pointer block">
-                        Urgent Hiring
-                      </label>
-                      <p className="text-xs text-gray-500 mt-0.5">Highlight this job as urgent</p>
-                    </div>
-                    <Switch
-                      id="isUrgent"
-                      checked={formData.isUrgent}
-                      onChange={() => handleCheckboxChange({ target: { name: 'isUrgent', checked: !formData.isUrgent } })}
-                      className={`${formData.isUrgent ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
-                    >
-                      <span className={`${formData.isUrgent ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
-                    </Switch>
-                  </div>
+                  <div className="space-y-6">
+                    {/* Auto Stop Settings... */}
 
-                  <div className="flex items-center justify-between">
-                    <div className='mb-4'>
-                      <label htmlFor="isRemote" className="text-sm font-medium text-gray-700 cursor-pointer block mt-5 ">
-                        Remote Position
-                      </label>
-                      <p className="text-xs text-gray-500 mt-0.5">This job can be done remotely</p>
+                    {/* Urgent Hiring Switch */}
+                    <div className="flex items-center justify-between pt-4">
+                      <div className="space-y-1">
+                        <label htmlFor="isUrgent" className="text-sm font-medium text-gray-700 cursor-pointer block">
+                          Urgent Hiring
+                        </label>
+                        <p className="text-xs text-gray-500">Highlight this job as urgent</p>
+                      </div>
+                      <Switch
+                        id="isUrgent"
+                        checked={formData.isUrgent}
+                        onChange={() => handleCheckboxChange({ target: { name: 'isUrgent', checked: !formData.isUrgent } })}
+                        className={`${formData.isUrgent ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+                      >
+                        <span className={`${formData.isUrgent ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
+                      </Switch>
                     </div>
-                    <Switch
-                      id="isRemote"
-                      checked={formData.isRemote}
-                      onChange={() => handleCheckboxChange({ target: { name: 'isRemote', checked: !formData.isRemote } })}
-                      className={`${formData.isRemote ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
-                    >
-                      <span className={`${formData.isRemote ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
-                    </Switch>
-                  </div>
 
-                  <button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg shadow-sm transition-colors duration-200 flex items-center justify-center mt-6"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting || submitSuccess}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="animate-spin h-5 w-5 mr-2" />
-                        {isEditing ? 'Updating...' : 'Posting...'}
-                      </>
-                    ) : (
-                      isEditing ? 'Update Job' : 'Post Job Now'
-                    )}
-                  </button>
+                    {/* Remote Position Switch */}
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <label htmlFor="isRemote" className="text-sm font-medium text-gray-700 cursor-pointer block">
+                          Remote Position
+                        </label>
+                        <p className="text-xs text-gray-500">This job can be done remotely</p>
+                      </div>
+                      <Switch
+                        id="isRemote"
+                        checked={formData.isRemote}
+                        onChange={() => handleCheckboxChange({ target: { name: 'isRemote', checked: !formData.isRemote } })}
+                        className={`${formData.isRemote ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+                      >
+                        <span className={`${formData.isRemote ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
+                      </Switch>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
