@@ -4,7 +4,6 @@
 
 body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  cursor: none; /* Hide default cursor */
 }
 
 * {
@@ -72,15 +71,14 @@ body {
 }
 
 .custom-cursor.button {
-  width: 45px;
-  height: 45px;
-  background: rgba(59, 130, 246, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 
-    0 8px 32px rgba(59, 130, 246, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  /* Remove width, height, and background overrides to keep it consistent */
+  /* width: 45px; */
+  /* height: 45px; */
+  /* background: rgba(59, 130, 246, 0.5); */
+  /* backdrop-filter: blur(10px); */
+  /* -webkit-backdrop-filter: blur(10px); */
+  /* border: 2px solid rgba(255, 255, 255, 0.7); */
+  /* box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3); */
 }
 
 .custom-cursor.link {
@@ -140,14 +138,4 @@ body {
   .cursor-dot {
     display: none !important;
   }
-}
-
-/* Ensure cursor works with all interactive elements */
-button, a, input, textarea, [contenteditable], .interactive, .cursor-pointer, [role="button"], .btn, .button, .link, .clickable {
-  cursor: none !important;
-}
-
-/* Special handling for form elements */
-input:focus, textarea:focus {
-  cursor: none !important;
 }

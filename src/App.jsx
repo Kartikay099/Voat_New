@@ -47,9 +47,8 @@ function App() {
 
   return (
     <>
-      {/* Custom Cursor */}
-      <CustomCursor />
-      
+      {/* Custom Cursor only on main landing page */}
+      {isMainPage && <CustomCursor />}
       {/* ✅ Padding only for main page */}
       {isMainPage && <div className="pt-1" />}
 
