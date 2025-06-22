@@ -93,41 +93,6 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* Cursor dot - Glass effect */
-.cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 6px;
-  background: rgba(255, 255, 255, 1);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 100000;
-  transition: all 0.1s ease-out;
-  will-change: transform;
-  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.5);
-  transform-origin: center;
-}
-
-.cursor-dot.hover {
-  transform: scale(1.8);
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 3px 8px rgba(255, 255, 255, 0.6);
-}
-
-.cursor-dot.click {
-  transform: scale(0.6);
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.3);
-}
-
-.cursor-dot.text {
-  display: none;
-}
-
 /* Hide cursor on mobile and touch devices */
 @media (max-width: 768px), (hover: none) {
   body {

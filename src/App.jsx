@@ -28,6 +28,7 @@ import Navbar from "./Landing/components/Navbar";
 import ChangePassword from "./studentsComponents/components/ChangePassword";
 import CustomCursor from "./components/CustomCursor";
 import StudentEmailOtp from "./studentsComponents/components/StudentEmailOtp";
+import JobSearchPage from "./Landing/pages/JobSearchPage";
 import { Toaster } from 'react-hot-toast';
 
 import "./App.css";
@@ -62,6 +63,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/jobs/search" element={<JobSearchPage />} />
 
         {/* HR Dashboard Routes */}
         <Route path="/hire" element={<Layout />}>

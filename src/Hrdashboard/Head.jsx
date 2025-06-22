@@ -29,7 +29,7 @@ const Header = ({ onMenuToggle }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-10">
       {/* Mobile Header */}
-      <div className="md:hidden bg-[#0F52BA] text-white py-3 px-4 flex justify-between items-center shadow-md">
+      <div className="md:hidden bg-[#0F52BA] text-white py-4 px-4 flex justify-between items-center shadow-md">
           <Home size={20} />
           <span className="font-medium">HOME</span>
 

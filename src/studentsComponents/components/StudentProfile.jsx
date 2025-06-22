@@ -276,7 +276,7 @@ export default function StudentProfile() {
   return (
     <div className="flex">
       <Header />
-      <div className="flex-1 h-screen overflow-y-auto px-4 sm:px-6 pt-20">
+      <div className="flex-1 h-screen overflow-y-auto px-4 sm:px-6 pt-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md">
             <form onSubmit={handleSubmit} onKeyDown={e => {

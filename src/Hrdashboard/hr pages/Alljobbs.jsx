@@ -171,7 +171,7 @@ const [sampleJobs, setSampleJobs] = useState([
   // Get edit link for the job
 const getEditLink = () => (
   <Link 
-    to="/post-job" 
+    to="/hire/post-job" 
     state={{ 
       jobData: {
         id: jobData.id,
@@ -379,7 +379,7 @@ const getEditLink = () => (
                       </div>
 
                       <div className="mt-6 flex justify-end">
-                        <Link to="/applications">
+                        <Link to="/hire/applications">
                           <button 
                             className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all font-medium text-sm shadow-sm hover:shadow-md active:scale-95"
                           >

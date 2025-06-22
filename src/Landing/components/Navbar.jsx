@@ -19,8 +19,13 @@ const Navbar = () => {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    if (tab === "left") navigate("/profile");
-    else if (tab === "right") navigate("/hire");
+    setTimeout(() => {
+      if (tab === "left") {
+        navigate("/profile");
+      } else if (tab === "right") {
+        navigate("/hire");
+      }
+    }, 500);
   };
 
   return (
@@ -29,7 +34,7 @@ const Navbar = () => {
         scrolled ? "breathing-effect" : ""
       }`}
     >
-      <div className="flex items-center justify-between px-6 py-3">
+      <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           <button
             className="md:hidden text-white"

@@ -6,20 +6,16 @@ const CustomCursor = () => {
   const [isClicking, setIsClicking] = useState(false);
   const [cursorType, setCursorType] = useState('default');
   const cursorRef = useRef(null);
-  const dotRef = useRef(null);
 
   useEffect(() => {
     const cursor = cursorRef.current;
-    const dot = dotRef.current;
 
-    if (!cursor || !dot) return;
+    if (!cursor) return;
 
     let mouseX = 0;
     let mouseY = 0;
     let cursorX = 0;
     let cursorY = 0;
-    let dotX = 0;
-    let dotY = 0;
 
     const updateCursorPosition = (e) => {
       mouseX = e.clientX;
@@ -32,13 +28,8 @@ const CustomCursor = () => {
       cursorX += (mouseX - cursorX) * 0.15;
       cursorY += (mouseY - cursorY) * 0.15;
       
-      // Smooth dot movement (faster)
-      dotX += (mouseX - dotX) * 0.3;
-      dotY += (mouseY - dotY) * 0.3;
-
-      if (cursor && dot) {
+      if (cursor) {
         cursor.style.transform = `translate(${cursorX - 12}px, ${cursorY - 12}px)`;
-        dot.style.transform = `translate(${dotX - 3}px, ${dotY - 3}px)`;
       }
 
       requestAnimationFrame(animateCursor);
@@ -170,7 +161,6 @@ const CustomCursor = () => {
   }
 
   const cursorClasses = `custom-cursor ${cursorType} ${isHovering ? 'hover' : ''} ${isClicking ? 'click' : ''}`;
-  const dotClasses = `cursor-dot ${isHovering ? 'hover' : ''} ${isClicking ? 'click' : ''} ${cursorType === 'text' ? 'text' : ''}`;
 
   return (
     <>
@@ -178,12 +168,6 @@ const CustomCursor = () => {
       <div
         ref={cursorRef}
         className={cursorClasses}
-      />
-      
-      {/* Cursor dot */}
-      <div
-        ref={dotRef}
-        className={dotClasses}
       />
     </>
   );

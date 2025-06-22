@@ -12,7 +12,7 @@ const Layout = () => {
         onMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)}
       />
       
-      <div className="flex flex-1 pt-16 h-[calc(100vh-4rem)] ">
+      <div className="flex flex-1 pt-16 h-[calc(100vh-4rem)]">
         <Sidebar 
           mobileOpen={mobileSidebarOpen}
           setMobileOpen={setMobileSidebarOpen}

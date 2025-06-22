@@ -75,7 +75,7 @@ const Header = () => {
   return (
     <header className="relative">
       {/* Mobile Header */}
-      <div className={`md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0F52BA] text-white py-3 px-4 flex justify-between items-center shadow-md transition-shadow duration-300 ${
+      <div className={`md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0F52BA] text-white py-4 px-4 flex justify-between items-center shadow-md transition-shadow duration-300 ${
         scrolled ? "breathing-effect" : ""
       }`}>
         <button
@@ -299,7 +299,7 @@ const Header = () => {
       )}
 
       {/* Sidebar for Desktop */}
-      <aside className="hidden h-screen md:flex w-64 bg-white shadow-lg flex-col pt-20">
+      <aside className="hidden h-screen md:flex w-64 bg-white shadow-lg flex-col pt-24">
         <DesktopSidebarContent />
       </aside>
     </header>
