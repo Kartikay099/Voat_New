@@ -27,7 +27,7 @@ const router = createBrowserRouter([
         index: true,
         element: <Navigate to="/hire/post-job" replace />
       },
-      {
+      {  
         path: "hrprofile",
         element: <Profile />
       },

@@ -29,16 +29,23 @@ const Header = ({ onMenuToggle }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-10">
       {/* Mobile Header */}
-      <div className="md:hidden bg-[#0F52BA] text-white py-4 px-4 flex justify-between items-center shadow-md">
-          <Home size={20} />
-          <span className="font-medium">HOME</span>
+      <div className="md:hidden bg-[#0F52BA] text-white py-3 px-4 flex justify-between items-center shadow-md">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={onMenuToggle}
+            className="p-2 rounded-full hover:bg-[#1565C0] transition-colors"
+          >
+            <Menu size={20} />
+          </button>
+           <Link
+            to="/"
+            className="flex items-center bg-[#0D47A1] rounded-full px-4 py-2 hover:bg-[#1565C0] transition-colors cursor-pointer"
+          >
+            <Home size={20} />
 
-        <h1 className="text-2xl font-bold text-center flex-1">
-          <Link to="/profile" className="flex items-center justify-center flex-1">
-            VOAT
           </Link>
-          </h1>
-        <h1 className="text-xl font-bold">VOAT</h1>
+        </div>
+               <h1 className="text-xl font-bold mx-auto w-1/3 text-center">VOAT</h1>
         <div className="flex items-center space-x-2">
           <div className="relative">
             <button
@@ -84,15 +91,6 @@ const Header = ({ onMenuToggle }) => {
                     </div>
                   ))}
                 </div>
-                <div className="p-2 text-center border-t border-gray-200">
-                  <Link
-                    to="/hire/schedule"
-                    onClick={() => setNotificationsOpen(false)}
-                    className="text-sm text-[#0F52BA] hover:underline"
-                  >
-                    View all notifications
-                  </Link>
-                </div>
               </div>
             )}
           </div>
@@ -129,18 +127,23 @@ const Header = ({ onMenuToggle }) => {
 
       {/* Desktop Header */}
       <div className="hidden md:flex bg-[#0F52BA] text-white py-4 px-6 justify-between items-center shadow-md">
-        <Link
-          to="/"
-          className="flex items-center space-x-2 bg-[#0D47A1] rounded-full px-4 py-2 hover:bg-[#1565C0] transition-colors cursor-pointer"
-        >
-          <Home size={20} />
-          <span className="font-medium">HOME</span>
-        </Link>
-        <Link to="/" className="flex items-center justify-center flex-1">
-          <h1 className="text-2xl font-bold text-center w-full">VOAT</h1>
+        <div className="flex-1 flex items-center">
+          <Link
+            to="/"
+            className="flex items-center space-x-2 bg-[#0D47A1] rounded-full px-4 py-2 hover:bg-[#1565C0] transition-colors cursor-pointer"
+          >
+            <Home size={20} />
+            <span className="font-medium">HOME</span>
+          </Link>
+        </div>
 
-        </Link>
-        <div className="flex items-center space-x-4">
+        <div className="flex-1 flex justify-center">
+          <Link to="/">
+            <h1 className="text-2xl font-bold">VOAT</h1>
+          </Link>
+        </div>
+
+        <div className="flex-1 flex justify-end items-center space-x-4">
           <div className="relative">
             <button
               onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -184,15 +187,6 @@ const Header = ({ onMenuToggle }) => {
                       )}
                     </div>
                   ))}
-                </div>
-                <div className="p-2 text-center border-t border-gray-200">
-                  <Link
-                    to="/hire/schedule"
-                    onClick={() => setNotificationsOpen(false)}
-                    className="text-sm text-[#0F52BA] hover:underline"
-                  >
-                    View all notifications
-                  </Link>
                 </div>
               </div>
             )}

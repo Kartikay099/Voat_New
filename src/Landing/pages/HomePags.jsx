@@ -32,7 +32,7 @@ function HomePags() {
   };
 
   return (
-    <div className="home-page-container flex flex-col items-center min-h-screen bg-[#f5faff] pt-24">
+    <div className="home-page-container flex flex-col items-center min-h-screen bg-[#f5faff] pt-7">
       <div className="w-full max-w-6xl mx-auto px-4 py-8">
         <motion.h1 
           className="text-4xl text-center font-bold mb-8"

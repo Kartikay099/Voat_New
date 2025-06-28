@@ -59,11 +59,11 @@ function App() {
 
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<MainPages />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/jobs/search" element={<JobSearchPage />} />
+          <Route path="/" element={<MainPages />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/jobs/search" element={<JobSearchPage />} />
 
         {/* HR Dashboard Routes */}
         <Route path="/hire" element={<Layout />}>

@@ -55,7 +55,7 @@ const JobSearchPage = () => {
     const exp = (searchParams.get('experience') || '').toLowerCase();
     
     if (!q && !loc && !exp) {
-        return [];
+        return mockJobs;
     }
 
     return mockJobs.filter(job => {
@@ -262,6 +262,13 @@ const JobSearchPage = () => {
                                     <div className="flex items-center text-gray-500 text-xs mt-auto pt-4 border-t border-gray-100">
                                         <Clock size={14} className="mr-2" />
                                         <span>Posted: {job.postedDate}</span>
+                                    </div>
+                                    <div className="flex justify-end items-end mt-4">
+                                      <button
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-1.5 rounded-full transition-all duration-300 shadow text-base"
+                                      >
+                                        Apply Now
+                                      </button>
                                     </div>
                                 </motion.div>
                                 ))}
