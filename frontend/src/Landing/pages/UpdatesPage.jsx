@@ -3,7 +3,7 @@ import { CalendarDays } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Dummy Announcement Data
-const dummyData = Array(5)
+const dummyData = Array(15)  // Increased to 15 items for better pagination demo
   .fill(0)
   .map((_, i) => ({
     id: i + 1,
@@ -47,12 +47,24 @@ const formatDate = (isoDate) => {
 export default function UpdatesPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6; // 6 items per page
 
+  // Calculate pagination
   const filtered = dummyData
     .filter((item) =>
       filter === "All" ? true : item.type === filter.toLowerCase()
     )
     .filter((item) => item.title.toLowerCase().includes(search.toLowerCase()));
+
+  // Get current items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="max-w-screen-2xl mx-auto p-6 sm:p-8">
@@ -72,7 +84,10 @@ export default function UpdatesPage() {
         placeholder="Search announcements..."
         className="w-full p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 mb-6 transition-all duration-300 hover:border-blue-300"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1); // Reset to first page when searching
+        }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
@@ -89,7 +104,10 @@ export default function UpdatesPage() {
         {filters.map((f) => (
           <motion.button
             key={f}
-            onClick={() => setFilter(f)}
+            onClick={() => {
+              setFilter(f);
+              setCurrentPage(1); // Reset to first page when changing filter
+            }}
             className={`px-5 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${
               filter === f
                 ? "bg-blue-600 text-white"
@@ -106,13 +124,13 @@ export default function UpdatesPage() {
 
       {/* Cards */}
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <AnimatePresence mode="wait">
-          {filtered.map(({ id, date, title, description }) => (
+          {currentItems.map(({ id, date, title, description }) => (
             <motion.div
               key={id}
               variants={itemVariants}
@@ -150,6 +168,48 @@ export default function UpdatesPage() {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Pagination */}
+      {filtered.length > itemsPerPage && (
+        <motion.div 
+          className="flex justify-center mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <nav className="flex items-center gap-2">
+            <button
+              onClick={() => paginate(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+              <button
+                key={number}
+                onClick={() => paginate(number)}
+                className={`w-10 h-10 rounded-full ${
+                  currentPage === number
+                    ? 'bg-blue-600 text-white'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                {number}
+              </button>
+            ))}
+
+            <button
+              onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+            >
+              Next
+            </button>
+          </nav>
+        </motion.div>
+      )}
     </div>
   );
 }

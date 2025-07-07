@@ -21,7 +21,7 @@ function MainPages() {
         <StickySidebarButtons footerRef={footerRef} />
 
         {/* Main Page Sections */}
-        <div className="main-content w-full px-4 md:px-8 py-6 space-y-12 overflow-y-auto">
+        <div className="main-content w-full px-4 md:px-8 py-4 space-y-15 overflow-y-auto">
           <div id="home" data-section="home" className="main-page">
             <HomePags />
           </div>
@@ -44,10 +44,10 @@ function MainPages() {
       <footer
         id="footer"
         data-section="footer"
-        className="bg-black text-white w-full mt-auto"
+        className="bg-[#0a2540] text-white w-full "
         ref={footerRef}
       >
-        <div className="footer-content px-4 md:px-8 py-6">
+        <div className="">
           <Footer />
         </div>
       </footer>

@@ -10,9 +10,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { mockJobs } from "../../utilits/mockJobs";
 import { useUserJobContext } from "../contexts/UserJobContext";
-import ViewJob from "./sideBar/Viewjob";
 import { motion, AnimatePresence } from "framer-motion";
 
 function ApplyForJobs() {
@@ -215,16 +213,6 @@ function ApplyForJobs() {
     setShowSuggestions(false);
   };
 
-  // Common job titles and roles
-  const commonJobs = [
-    "Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer",
-    "React Developer", "Node.js Developer", "Python Developer", "Java Developer",
-    "DevOps Engineer", "Data Scientist", "Machine Learning Engineer", "UI/UX Designer",
-    "Product Manager", "Project Manager", "Business Analyst", "Quality Assurance",
-    "Mobile Developer", "iOS Developer", "Android Developer", "Cloud Engineer",
-    "System Administrator", "Network Engineer", "Security Engineer", "Database Administrator",
-    "Technical Lead", "Solution Architect", "Scrum Master", "Agile Coach"
-  ];
 
   const handleJobSearch = (e) => {
     const value = e.target.value;

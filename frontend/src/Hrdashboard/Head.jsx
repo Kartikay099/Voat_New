@@ -29,7 +29,7 @@ const Header = ({ onMenuToggle }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-10">
       {/* Mobile Header */}
-      <div className="md:hidden bg-[#0F52BA] text-white py-3 px-4 flex justify-between items-center shadow-md">
+      <div className="md:hidden bg-[#0F52BA] text-white py-1.5 px-4 flex justify-between items-center shadow-md">
         <div className="flex items-center space-x-2">
           <button
             onClick={onMenuToggle}
@@ -45,7 +45,13 @@ const Header = ({ onMenuToggle }) => {
 
           </Link>
         </div>
-               <h1 className="text-xl font-bold mx-auto w-1/3 text-center">VOAT</h1>
+                  <Link to="/">
+          <img
+              src="/MANAHIRE.png"
+              alt="MANAHIRE Logo"
+              className="w-40 "    />
+          </Link>
+
         <div className="flex items-center space-x-2">
           <div className="relative">
             <button
@@ -126,7 +132,7 @@ const Header = ({ onMenuToggle }) => {
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex bg-[#0F52BA] text-white py-4 px-6 justify-between items-center shadow-md">
+      <div className="hidden md:flex bg-[#0F52BA] text-white py-1 px-6 justify-between items-center shadow-md">
         <div className="flex-1 flex items-center">
           <Link
             to="/"
@@ -139,7 +145,10 @@ const Header = ({ onMenuToggle }) => {
 
         <div className="flex-1 flex justify-center">
           <Link to="/">
-            <h1 className="text-2xl font-bold">VOAT</h1>
+          <img
+              src="/MANAHIRE.png"
+              alt="MANAHIRE Logo"
+              className="w-52 "    />
           </Link>
         </div>
 

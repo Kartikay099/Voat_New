@@ -431,7 +431,7 @@ export default function OTPLogin() {
         className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl w-full"
       >
         <motion.div
-          className="md:w-1/2 flex items-center justify-center bg-white"
+          className="hidden md:flex md:w-1/2 items-center justify-center bg-white"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}

@@ -92,7 +92,12 @@ const Header = () => {
         </div>
 
         {/* Centered VOAT title */}
-        <h1 className="text-xl font-bold mx-auto w-1/3 text-center">VOAT</h1>
+                  <Link to="/">
+                  <img
+                      src="/MANAHIRE.png"
+                      alt="MANAHIRE Logo"
+                      className="w-52 "    />
+                  </Link>
 
         {/* Right side - notifications and logout */}
         <div className="flex items-center space-x-2 justify-end w-1/3">
@@ -184,7 +189,7 @@ const Header = () => {
       </div>
 
       {/* Desktop Header */}
-      <div className="absolute top-0 left-0 right-0 w-screen hidden md:flex bg-[#0F52BA] text-white py-4 px-6 justify-between items-center shadow-md z-40">
+      <div className="absolute top-0 left-0 right-0 w-screen hidden md:flex bg-[#0F52BA] text-white py-3 px-6 justify-between items-center shadow-md z-40">
         {/* Left spacer */}
         <div className="flex-1 flex items-center">
           <Link
@@ -198,7 +203,12 @@ const Header = () => {
 
         {/* Centered VOAT title */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <h1 className="text-2xl font-bold">VOAT</h1>
+          <Link to="/">
+          <img
+              src="/MANAHIRE.png"
+              alt="MANAHIRE Logo"
+              className="w-52 "    />
+          </Link>
         </div>
 
         {/* Right side icons */}

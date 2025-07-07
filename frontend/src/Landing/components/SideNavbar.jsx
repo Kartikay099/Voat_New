@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
+import Cookies from "js-cookie";
 
 const sections = [
   { id: "home", label: "Home" },
@@ -17,6 +18,18 @@ const StickySidebarButtons = ({ footerRef }) => {
   const [isFooterVisible, setIsFooterVisible] = useState(false);
   const navigate = useNavigate();
   const observerRef = useRef(null);
+
+  const isLoggedIn = !!Cookies.get("jwtToken");
+
+  // Get user's first name from cookies
+  let firstName = "User";
+  try {
+    const userDetails = Cookies.get("userDetails");
+    if (userDetails) {
+      const user = JSON.parse(userDetails);
+      if (user.name) firstName = user.name.split(" ")[0];
+    }
+  } catch {}
 
   // Detect scroll position and footer visibility
   useEffect(() => {
@@ -67,8 +80,9 @@ const StickySidebarButtons = ({ footerRef }) => {
     }, 200);
   };
 
-  const handleLogin = () => {
+  const handleLogout = () => {
     setMobileOpen(false);
+    Cookies.remove("jwtToken");
     navigate("/login");
   };
 
@@ -128,9 +142,10 @@ const StickySidebarButtons = ({ footerRef }) => {
     <>
       {/* Mobile Hamburger */}
       <button
-        className="fixed top-4 left-4 z-50 md:hidden bg-[#0B52C0] text-white p-2 rounded-full shadow-lg transition-transform duration-200"
+        className="fixed top-2 left-4 z-50 md:hidden bg-[#0B52C0] text-white p-2 rounded-full shadow-lg transition-transform duration-200"
         onClick={() => setMobileOpen(true)}
         aria-label="Open sidebar"
+        style={{ left: '1rem', top: '0.25rem' }}
       >
         <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
           <rect y="4" width="24" height="2" rx="1" fill="currentColor" />
@@ -170,24 +185,18 @@ const StickySidebarButtons = ({ footerRef }) => {
             {/* Profile section for mobile */}
             <div className="flex flex-col items-center mb-6">
               <FaUserCircle className="text-blue-600 w-10 h-10 mb-1" />
-              <span className="text-blue-900 font-semibold text-base mb-2">Hi, Shivam</span>
+              <span className="text-blue-900 font-semibold text-base mb-2">Hi, {firstName}</span>
               <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded"
                 onClick={() => { setMobileOpen(false); navigate("/profile"); }}
               >
                 Profile
               </button>
-              <button
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded"
-                onClick={() => { setMobileOpen(false); navigate("/login"); }}
-              >
-                Log out
-              </button>
             </div>
 
             {toggleButtonMobile}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 flex-1">
               {sections.map((section) => (
                 <button
                   key={section.id}
@@ -201,6 +210,25 @@ const StickySidebarButtons = ({ footerRef }) => {
                   {section.label}
                 </button>
               ))}
+            </div>
+
+            {/* Login/Logout button at the bottom */}
+            <div className="mt-auto pt-6 flex justify-center">
+              {isLoggedIn ? (
+                <button
+                  className="text-base text-gray-700 hover:underline bg-transparent shadow-none px-0 py-0 rounded-none"
+                  onClick={handleLogout}
+                >
+                  Log out
+                </button>
+              ) : (
+                <button
+                  className="text-base text-gray-700 hover:underline bg-transparent shadow-none px-0 py-0 rounded-none"
+                  onClick={() => { setMobileOpen(false); navigate("/login"); }}
+                >
+                  Login
+                </button>
+              )}
             </div>
           </aside>
         </div>
