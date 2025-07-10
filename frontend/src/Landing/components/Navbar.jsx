@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Power } from "lucide-react";
 import { FaUserCircle } from "react-icons/fa";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,6 +11,8 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const profileRef = useRef(null);
   const navigate = useNavigate();
+
+  const isLoggedIn = !!Cookies.get("jwtToken");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +42,11 @@ const Navbar = () => {
     if (option === "logout") navigate("/login"); // Replace with real logout logic
   };
 
+  const handleLogout = () => {
+    Cookies.remove("jwtToken");
+    navigate("/login");
+  };
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -55,31 +63,13 @@ const Navbar = () => {
         scrolled ? "breathing-effect" : ""
       }`}
     >
-      <div className="flex items-center justify-between px-3 py-2 ">
-        <div className="flex items-center gap-3">
-          <button
-            className="md:hidden text-white mb-2"
-            onClick={() => setMenuOpen(true)}
-          >
-            {/* <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg> */}
-          </button>
-
+      <div className="flex items-center justify-between px-3 py-3 relative">
+        {/* Left section */}
+        <div className="flex items-center gap-3 min-w-0">
           {/* Profile section (where search bar was) */}
           <div className="relative ml-2 hidden md:flex" ref={profileRef}>
             <button
-              className="flex items-center gap-2 bg-white rounded-full px-3 py-1.5 shadow-md focus:outline-none"
+              className="flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow-md focus:outline-none"
               onClick={handleProfileClick}
             >
               <FaUserCircle className="text-blue-600 w-6 h-6" />
@@ -106,17 +96,15 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="flex justify-center gap-5 flex-1">
-          <Link to="/">
-            <img 
-              src="/MANAHIRE.png" 
-              alt="MANAHIRE Logo" 
-              className="w-40 md:w-64 ml-6 lg:ml-40" // Changed from w-64 to w-40 for mobile
-            />
+        {/* Centered logo absolutely centered */}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex justify-center items-center w-full pointer-events-none">
+          <Link to="/" className="pointer-events-auto">
+            <img src="/MANAHIRE.png" alt="MANAHIRE Logo" className="w-44 mx-auto" />
           </Link>
         </div>
 
-        <div className="flex items-center gap-6">
+        {/* Right section */}
+        <div className="flex items-center gap-6 min-w-0 ml-auto">
           {/* Add hidden md:flex to show only on medium screens and above */}
           <div className="relative hidden md:flex w-40 rounded-full bg-white overflow-hidden h-9 border-2 border-blue-600">
             <div
@@ -136,70 +124,24 @@ const Navbar = () => {
               </button>
             ))}
           </div>
-          <button
-            onClick={() => navigate("/login")}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 h-9 rounded-full transition-all duration-300 flex items-center gap-2 shadow-md"
-          >
-            <Power className="w-4 h-4 " />
-            <span className="hidden md:inline">Login</span>
-          </button>
-        </div>
-      </div>
-
-      <div
-        className={`fixed top-0 left-0 h-full w-40 bg-[#0b52c0] p-6 transition-transform duration-300 z-50 ${
-          menuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <button
-          className="text-white text-3xl mb-8"
-          onClick={() => setMenuOpen(false)}
-        >
-          ×
-        </button>
-
-        <ul className="flex flex-col gap-4 text-white text-sm">
-          <li>
-            <div className="relative flex w-full rounded-full bg-white overflow-hidden h-7 border-2 border-blue-600">
-              <div
-                className={`absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-blue-600 to-blue-500 transition-transform duration-350 ${
-                  activeTab === "right" ? "translate-x-full" : "translate-x-0"
-                }`}
-              />
-              {["left", "right"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    handleTabClick(tab);
-                    setMenuOpen(false);
-                  }}
-                  className={`relative z-10 w-1/2 text-xs font-semibold py-1 ${
-                    activeTab === tab ? "text-white" : "text-blue-900"
-                  }`}
-                >
-                  {tab === "left" ? "Apply Job" : "Hire Now"}
-                </button>
-              ))}
-            </div>
-          </li>
-          {["Home", "Updates", "FAQs", "Support"].map((item) => (
-            <li
-              key={item}
-              className="border border-white text-center rounded-full py-1 cursor-pointer"
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 h-9 rounded-full transition-all duration-300 flex items-center gap-2 shadow-md"
             >
-              {item}
-            </li>
-          ))}
-          <li
-            onClick={() => {
-              navigate("/login");
-              setMenuOpen(false);
-            }}
-            className="border border-white text-center rounded-full py-1 cursor-pointer"
-          >
-            Login
-          </li>
-        </ul>
+              <Power className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 h-9 rounded-full transition-all duration-300 flex items-center gap-2 shadow-md"
+            >
+              <Power className="w-4 h-4" />
+              <span>Login</span>
+            </button>
+          )}
+        </div>
       </div>
     </nav>
   );
